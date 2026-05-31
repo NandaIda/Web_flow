@@ -23,11 +23,11 @@ export default function Header({ predefinedStacksCount, dark, onToggleDark }: He
       {/* STATS OVERVIEW HEADER RAIL */}
       <div className="flex items-center gap-4 text-xs font-mono border-t md:border-t-0 border-gray-800 pt-2 md:pt-0 mt-2 md:mt-0" id="header-counters">
         <div className="flex flex-col pr-3 border-r border-[#27272A]">
-          <span className="uppercase text-gray-500 text-[10px] font-bold tracking-widest">Workspace Active</span>
+          <span className="uppercase text-gray-500 text-xs font-bold tracking-widest">Workspace Active</span>
           <span className="text-gray-200">PROD-AX-992</span>
         </div>
         <div className="flex flex-col pr-3 border-r border-[#27272A]">
-          <span className="uppercase text-gray-500 text-[10px] font-bold tracking-widest">Total Stacks</span>
+          <span className="uppercase text-gray-500 text-xs font-bold tracking-widest">Total Stacks</span>
           <span className="text-gray-200">{predefinedStacksCount} Preconfigured</span>
         </div>
         <div className="flex flex-col">
@@ -35,7 +35,7 @@ export default function Header({ predefinedStacksCount, dark, onToggleDark }: He
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
             ONLINE COMPILER
           </span>
-          <span className="text-[10px] text-gray-500 uppercase tracking-widest">SANDBOX READY</span>
+          <span className="text-xs text-gray-500 uppercase tracking-widest">SANDBOX READY</span>
         </div>
         <button
           onClick={onToggleDark}

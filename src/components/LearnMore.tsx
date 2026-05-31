@@ -70,15 +70,15 @@ function ToolDrawer({ tool, onClose }: { tool: ToolInfo; onClose: () => void }) 
           <p className="text-sm font-semibold text-gray-400 dark:text-zinc-500 italic">{tool.tagline}</p>
           <div>
             <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-zinc-500 mb-1.5 flex items-center gap-1"><BookOpen className="h-3 w-3" /> What is it?</h3>
-            <p className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed">{tool.what}</p>
+            <p className="text-base text-gray-700 dark:text-zinc-300 leading-relaxed">{tool.what}</p>
           </div>
           <div>
             <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-zinc-500 mb-1.5 flex items-center gap-1"><Lightbulb className="h-3 w-3" /> Why does it exist?</h3>
-            <p className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed">{tool.why}</p>
+            <p className="text-base text-gray-700 dark:text-zinc-300 leading-relaxed">{tool.why}</p>
           </div>
           <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded p-3">
             <h3 className="text-xs font-black uppercase tracking-wider text-blue-700 dark:text-blue-300 mb-1">👋 Beginner Tip</h3>
-            <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{tool.beginner}</p>
+            <p className="text-base text-blue-900 dark:text-blue-100 leading-relaxed">{tool.beginner}</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -154,11 +154,11 @@ function StackCompare() {
             >
               <div className="flex items-center justify-between">
                 <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100">{stack.name}</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded border font-bold ${complexityBadge(stack.complexity)}`}>
+                <span className={`text-xs px-2 py-0.5 rounded border font-bold ${complexityBadge(stack.complexity)}`}>
                   {stack.complexity}
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-1 leading-tight">{stack.idealUse}</p>
+              <p className="text-xs text-gray-500 mt-1 leading-relaxed">{stack.idealUse}</p>
             </button>
           ))}
         </div>
@@ -168,7 +168,7 @@ function StackCompare() {
           <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-5 flex flex-col gap-4">
             <div>
               <h3 className="text-lg font-black text-zinc-900 dark:text-zinc-100">{active.name}</h3>
-              <p className="text-sm text-gray-600 dark:text-zinc-400 mt-1 leading-relaxed">{active.description}</p>
+              <p className="text-base text-gray-600 dark:text-zinc-400 mt-1 leading-relaxed">{active.description}</p>
             </div>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
               {[
@@ -247,7 +247,7 @@ function Glossary() {
                 <span className="text-xl">{t.emoji}</span>
                 <div className="min-w-0">
                   <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate">{t.name}</div>
-                  <div className="text-[10px] text-gray-500 dark:text-zinc-400 truncate">{t.tagline}</div>
+                  <div className="text-xs text-gray-500 dark:text-zinc-400 truncate">{t.tagline}</div>
                 </div>
                 <ChevronRight className="h-3 w-3 text-gray-300 dark:text-zinc-600 shrink-0 ml-auto" />
               </button>
@@ -273,9 +273,9 @@ function Glossary() {
                       <span className="text-lg shrink-0">{t.emoji}</span>
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">{t.name}</div>
-                        <div className="text-[10px] text-gray-400 dark:text-zinc-500 truncate leading-tight">{t.tagline}</div>
+                        <div className="text-xs text-gray-400 dark:text-zinc-500 truncate leading-tight">{t.tagline}</div>
                       </div>
-                      <span className={`text-[9px] font-bold px-1 py-0.5 rounded shrink-0 ${difficultyDot(t.difficulty) === 'bg-emerald-500' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'}`}>
+                      <span className={`text-xs font-bold px-1 py-0.5 rounded shrink-0 ${difficultyDot(t.difficulty) === 'bg-emerald-500' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'}`}>
                         {t.difficulty.slice(0, 3)}
                       </span>
                     </button>
@@ -315,8 +315,8 @@ function FullRoadmap() {
           </button>
           {expanded === step.step && (
             <div className="px-4 pb-4 flex flex-col gap-3 border-t border-gray-100 dark:border-zinc-700 pt-3">
-              <p className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed">{step.why}</p>
-              <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded p-3 text-sm text-emerald-900 dark:text-emerald-100">
+              <p className="text-base text-gray-700 dark:text-zinc-300 leading-relaxed">{step.why}</p>
+              <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded p-3 text-base text-emerald-900 dark:text-emerald-100">
                 <span className="text-xs font-black text-emerald-700 dark:text-emerald-300 block mb-1">Mini Project</span>
                 {step.miniProject}
               </div>

@@ -1,38 +1,22 @@
-# Plan: Make Tool Glossary Follow Functional Naming Pattern
+# Plan: Apply Font Size Rules Across the Codebase
 
-## Problem
+Based on analysis of all 5 component files + toolKnowledge data, here are the violations of the new font size rules:
 
-The tool glossary (`toolKnowledge.ts`) uses commercial brand names as primary labels for many entries, while the wizard (`conversationalFlow.ts`) follows a functional naming convention (e.g. `'Push-to-deploy cloud'` with `'(e.g. Vercel, Netlify)'` in the description). Per CLAUDE.md rule: *"Do not reference brand names as primary labels — use functional category names with `(e.g. ...)` in the `desc` field"*.
+## Violation Categories
 
-Additionally, several commercial services referenced in the wizard options have no tool glossary entry at all.
+### 1. `text-[8px]`, `text-[9px]`, `text-[10px]`, `text-[11px]` — below `text-xs` (12px) absolute floor
 
-## Changes
+These must be bumped to `text-xs` (0.75rem / 12px). Exception: footer build refs at `text-[10px]` are valid **fine print**.
 
-### A. Update existing `toolKnowledge.ts` entries — change `name` to functional, keep brand in `tagline`/`what`
+### 2. `leading-tight` (1.25) on paragraph/guidance text — violates 1.5 minimum
 
-| ID | Current `name` | New `name` | New `tagline` |
-|---|---|---|---|
-| `vercel` | `'Vercel'` | `'Serverless Edge Platform'` | `'Push-to-deploy cloud platform for frontend and fullstack (e.g. Vercel)'` |
-| `railway` | `'Railway / Render'` | `'Container PaaS'` | `'Managed container platform — always-on servers (e.g. Railway, Render)'` |
-| `supabase` | `'Supabase'` | `'Backend-as-a-Service (BaaS)'` | `'Open-source Firebase alternative — managed Postgres + auth + storage (e.g. Supabase)'` |
-| `supabase_auth` | `'Supabase Auth'` | `'Platform Auth SDK'` | `'Authentication built into your BaaS platform (e.g. Supabase Auth)'` |
-| `clerk` | `'Clerk'` | `'Managed Auth Service'` | `'Drop-in auth with pre-built UI components (e.g. Clerk)'` |
-| `sentry` | `'Sentry'` | `'Error Monitoring Service'` | `'Real-time error tracking and performance monitoring (e.g. Sentry)'` |
+### 3. `text-sm` (14px) used as **body/guidance** text — must be `text-base` (16px)
 
-> **Not changing**: `nextjs` (open-source framework, not a commercial platform), `mongodb` (database name is also the generic term), `react`/`vue`/`svelte` (open-source libraries).
+## Files modified (6 files)
 
-### B. Add missing tool glossary entries for services referenced in the wizard
-
-| ID | `name` | `tagline` |
-|---|---|---|
-| `planetscale` | `'Serverless MySQL'` | `'Branch-based MySQL database for serverless apps (e.g. PlanetScale)'` |
-| `neon` | `'Serverless Postgres'` | `'Auto-scaling Postgres that pauses when idle (e.g. Neon)'` |
-| `turso` | `'Edge SQLite'` | `'SQLite replicated globally at the edge (e.g. Turso)'` |
-| `stripe` | `'Payment Gateway'` | `'Online payment processing for internet businesses (e.g. Stripe)'` |
-| `lemon_squeezy` | `'Merchant of Record'` | `'Global tax-compliant payment processing (e.g. Lemon Squeezy, Paddle)'` |
-
-### C. Update `TOOL_GROUPS` in `LearnMore.tsx` to include new entries
-
-Add the new IDs to the appropriate groups:
-- `'Database'` group: add `'planetscale'`, `'neon'`, `'turso'`
-- `'Backend'` group: add `'stripe'`, `'lemon_squeezy'`
+1. `src/components/Header.tsx` — 3 changes
+2. `src/components/LearnMore.tsx` — 10 changes
+3. `src/components/ConversationalFlow.tsx` — 7 changes
+4. `src/components/Vibecoder.tsx` — 3 changes
+5. `src/components/VisualTopologyNodes.tsx` — 17 changes
+6. `src/components/VisualFlowchart.tsx` — 8 changes

@@ -97,7 +97,7 @@ function OptionCard({
               <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0" />
             )}
           </div>
-          <p className="text-sm text-gray-600 mt-1 leading-relaxed">{opt.desc}</p>
+          <p className="text-base text-gray-600 mt-1 leading-relaxed">{opt.desc}</p>
           {/* compat reason line */}
           {compat.reason && !active && (
             <p className={`text-xs mt-1.5 font-medium leading-relaxed ${isIncompat ? 'text-red-600' : 'text-emerald-700'}`}>
@@ -801,7 +801,7 @@ Be specific and production-aware. Call out any gotchas for the chosen stack (e.g
             </div>
             <h2 className="text-xl font-black tracking-tight">{projectName}</h2>
             {projectDesc && (
-              <p className="text-sm text-gray-400 mt-0.5 max-w-xl leading-relaxed line-clamp-2">{projectDesc}</p>
+              <p className="text-base text-gray-400 mt-0.5 max-w-xl leading-relaxed line-clamp-2">{projectDesc}</p>
             )}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -1263,7 +1263,7 @@ function MiniEcosystem({ highlightLayer, answers }: { highlightLayer: string; an
         const isActive = layer.label === highlightLayer;
         return (
           <div key={layer.label} className={`rounded p-2 transition-all ${isActive ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`}>
-            <div className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded w-fit mb-1.5 ${layer.color}`}>
+            <div className={`text-xs font-black uppercase tracking-wider px-1.5 py-0.5 rounded w-fit mb-1.5 ${layer.color}`}>
               {layer.label}
             </div>
             <div className="flex flex-wrap gap-1">
@@ -1272,7 +1272,7 @@ function MiniEcosystem({ highlightLayer, answers }: { highlightLayer: string; an
                 return (
                   <span
                     key={tool}
-                    className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
+                    className={`text-xs px-1.5 py-0.5 rounded border transition-all ${
                       isChosen
                         ? 'bg-blue-600 text-white border-blue-600 font-bold'
                         : isActive
@@ -1872,7 +1872,7 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
           />
           {currentQuestion?.type === 'single' && currentQuestion.options && currentQuestion.options.length > 1 && (
             <p className="text-xs text-gray-400 text-center">
-              Press <kbd className="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 font-mono text-[10px]">1</kbd>–<kbd className="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 font-mono text-[10px]">{Math.min(currentQuestion.options.length, 9)}</kbd> to select · <kbd className="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 font-mono text-[10px]">⌫</kbd> to go back
+              Press <kbd className="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 font-mono text-xs">1</kbd>–<kbd className="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 font-mono text-xs">{Math.min(currentQuestion.options.length, 9)}</kbd> to select · <kbd className="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 font-mono text-xs">⌫</kbd> to go back
             </p>
           )}
         </motion.div>

@@ -30,8 +30,68 @@
       "updated_at": "2026-05-31T14:54:24.617186916Z",
       "session_id": "7b42147d-7ce7-4937-9bb1-ebee819c6535",
       "completed_count": 1
+    },
+    {
+      "id": "970a44b9",
+      "title": "Fix font sizes in Header.tsx",
+      "detail": "3 changes: text-[10px] → text-xs for labels",
+      "status": "done",
+      "created_at": "2026-05-31T15:02:27.957376601Z",
+      "updated_at": "2026-05-31T15:02:39.042683664Z",
+      "session_id": "7b42147d-7ce7-4937-9bb1-ebee819c6535",
+      "completed_count": 1
+    },
+    {
+      "id": "9e49ec5c",
+      "title": "Fix font sizes in LearnMore.tsx",
+      "detail": "text-[9px]/[10px] → text-xs; leading-tight → leading-relaxed on paragraphs; text-sm → text-base on body paragraphs",
+      "status": "done",
+      "created_at": "2026-05-31T15:02:27.957860492Z",
+      "updated_at": "2026-05-31T15:03:02.755096560Z",
+      "session_id": "7b42147d-7ce7-4937-9bb1-ebee819c6535",
+      "completed_count": 1
+    },
+    {
+      "id": "0ba57d75",
+      "title": "Fix font sizes in ConversationalFlow.tsx",
+      "detail": "text-[9px]/[10px] → text-xs; text-sm → text-base on guidance paragraphs",
+      "status": "done",
+      "created_at": "2026-05-31T15:02:27.965691023Z",
+      "updated_at": "2026-05-31T15:03:35.816562369Z",
+      "session_id": "7b42147d-7ce7-4937-9bb1-ebee819c6535",
+      "completed_count": 1
+    },
+    {
+      "id": "c8a14926",
+      "title": "Fix font sizes in Vibecoder.tsx",
+      "detail": "text-sm → text-base on guidance paragraphs",
+      "status": "done",
+      "created_at": "2026-05-31T15:02:27.966360608Z",
+      "updated_at": "2026-05-31T15:03:55.162794867Z",
+      "session_id": "7b42147d-7ce7-4937-9bb1-ebee819c6535",
+      "completed_count": 1
+    },
+    {
+      "id": "5c64874f",
+      "title": "Fix font sizes in VisualTopologyNodes.tsx",
+      "detail": "text-[8px]/[9px]/[10px]/[11px] → text-xs for topology node labels and text",
+      "status": "done",
+      "created_at": "2026-05-31T15:02:27.966879661Z",
+      "updated_at": "2026-05-31T15:04:28.152431950Z",
+      "session_id": "7b42147d-7ce7-4937-9bb1-ebee819c6535",
+      "completed_count": 1
+    },
+    {
+      "id": "9c3408b6",
+      "title": "Fix font sizes in VisualFlowchart.tsx",
+      "detail": "text-sm → text-base on body/guidance paragraphs",
+      "status": "done",
+      "created_at": "2026-05-31T15:02:27.967380962Z",
+      "updated_at": "2026-05-31T15:05:22.994416799Z",
+      "session_id": "7b42147d-7ce7-4937-9bb1-ebee819c6535",
+      "completed_count": 1
     }
   ],
-  "total_completed": 3,
+  "total_completed": 9,
   "last_verified_at": null
 }

@@ -494,7 +494,7 @@ function NoStackYet({ onGoToBuilder }: { onGoToBuilder: () => void }) {
       </div>
       <div>
         <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-100">No stack built yet</h2>
-        <p className="text-sm text-gray-500 mt-1 max-w-sm">
+        <p className="text-base text-gray-500 mt-1 max-w-sm">
           Complete the Stack Builder first — then come back here to generate your AI prompt and polish the result.
         </p>
       </div>
@@ -568,7 +568,7 @@ export default function Vibecoder({ answers, handleCopyClipboard, onGoToBuilder 
             </div>
             <div>
               <h2 className="text-lg font-black">Vibecoder Prompt Builder</h2>
-              <p className="text-sm text-gray-300 mt-0.5 leading-relaxed">
+              <p className="text-base text-gray-300 mt-0.5 leading-relaxed">
                 Your stack for <span className="text-blue-300 font-bold">{projectName}</span> is ready.
                 Check the improvements you want — they'll be injected into the AI prompt automatically.
               </p>
@@ -576,7 +576,7 @@ export default function Vibecoder({ answers, handleCopyClipboard, onGoToBuilder 
           </div>
         </div>
 
-        <div className="bg-amber-50 border border-amber-200 rounded p-3 flex items-start gap-2 text-sm text-amber-800 leading-relaxed">
+        <div className="bg-amber-50 border border-amber-200 rounded p-3 flex items-start gap-2 text-base text-amber-800 leading-relaxed">
           <Lightbulb className="h-4 w-4 shrink-0 mt-0.5 text-amber-500" />
           <span>
             <strong>How to use:</strong> Tick the features you want. The prompt on the right updates live.

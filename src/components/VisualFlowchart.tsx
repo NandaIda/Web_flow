@@ -74,7 +74,7 @@ function ToolDrawer({ tool, onClose }: { tool: ToolInfo; onClose: () => void }) 
             <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-2 flex items-center gap-1.5">
               <BookOpen className="h-3.5 w-3.5" /> What is it?
             </h3>
-            <p className="text-sm text-gray-700 leading-relaxed">{tool.what}</p>
+            <p className="text-base text-gray-700 leading-relaxed">{tool.what}</p>
           </div>
 
           {/* why */}
@@ -82,7 +82,7 @@ function ToolDrawer({ tool, onClose }: { tool: ToolInfo; onClose: () => void }) 
             <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-2 flex items-center gap-1.5">
               <Lightbulb className="h-3.5 w-3.5" /> Why does it exist?
             </h3>
-            <p className="text-sm text-gray-700 leading-relaxed">{tool.why}</p>
+            <p className="text-base text-gray-700 leading-relaxed">{tool.why}</p>
           </div>
 
           {/* beginner advice */}
@@ -90,7 +90,7 @@ function ToolDrawer({ tool, onClose }: { tool: ToolInfo; onClose: () => void }) 
             <h3 className="text-xs font-black uppercase tracking-wider text-blue-700 mb-1.5 flex items-center gap-1.5">
               👋 Beginner Tip
             </h3>
-            <p className="text-sm text-blue-900 leading-relaxed">{tool.beginner}</p>
+            <p className="text-base text-blue-900 leading-relaxed">{tool.beginner}</p>
           </div>
 
           {/* difficulty + alternatives */}
@@ -390,7 +390,7 @@ const LAYER_COLORS: Record<string, string> = {
 function EcosystemExplorer({ onToolClick }: { onToolClick: (id: string) => void }) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-gray-500 leading-relaxed">
+      <p className="text-base text-gray-500 leading-relaxed">
         Click any tool to learn what it does, why it exists, and when to use it.
       </p>
       {LAYERS.map(layer => {
@@ -470,7 +470,7 @@ function LearningRoadmap() {
 
           {expanded === step.step && (
             <div className="px-4 pb-4 flex flex-col gap-3 border-t border-gray-100 pt-3">
-              <p className="text-sm text-gray-700 leading-relaxed">{step.why}</p>
+              <p className="text-base text-gray-700 leading-relaxed">{step.why}</p>
 
               <div className="bg-emerald-50 border border-emerald-200 rounded p-3">
                 <div className="text-xs font-black text-emerald-700 uppercase tracking-wider mb-1 flex items-center gap-1">
@@ -584,7 +584,7 @@ function DecisionGuide() {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-gray-500 leading-relaxed">
+      <p className="text-base text-gray-500 leading-relaxed">
         Not sure what tools to use? Pick your situation and see exactly what stack to build with — and why.
       </p>
       <div className="flex flex-col gap-2">
@@ -609,7 +609,7 @@ function DecisionGuide() {
 
             {open === i && (
               <div className="px-4 pb-4 flex flex-col gap-4 border-t border-gray-100 pt-3">
-                <p className="text-sm text-gray-700 leading-relaxed">{scenario.answer}</p>
+                <p className="text-base text-gray-700 leading-relaxed">{scenario.answer}</p>
 
                 <div className="flex flex-col gap-2">
                   <div className="text-xs font-black uppercase tracking-wider text-gray-400">Recommended stack</div>
@@ -802,7 +802,7 @@ export default function VisualFlowchart({ answers, handleCopyClipboard }: Visual
         <div className="max-w-2xl flex flex-col gap-4">
           <div>
             <h2 className="text-lg font-black text-zinc-900">Learning Roadmap</h2>
-            <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
+            <p className="text-base text-gray-500 mt-0.5 leading-relaxed">
               The recommended order to learn full-stack web development — from HTML to production deployment.
               Each step includes a mini-project to practice.
             </p>
