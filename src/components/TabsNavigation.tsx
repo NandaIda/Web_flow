@@ -1,60 +1,72 @@
 import React from 'react';
-import { Layers, Sliders, Compass, Sparkles } from 'lucide-react';
+import { Layers, Map, Sparkles, BookOpen } from 'lucide-react';
 
-type TabType = 'flow' | 'table' | 'graphs' | 'builder';
+export type TabType = 'flow' | 'graphs' | 'builder' | 'learn';
 
 interface TabsNavigationProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
 }
 
+const TABS = [
+  {
+    id: 'flow' as TabType,
+    label: 'Stack Builder',
+    sublabel: 'Design your stack',
+    icon: Layers,
+  },
+  {
+    id: 'graphs' as TabType,
+    label: 'Visual Map',
+    sublabel: 'Diagram + ecosystem',
+    icon: Map,
+  },
+  {
+    id: 'builder' as TabType,
+    label: 'Vibecoder',
+    sublabel: 'AI prompt + polish',
+    icon: Sparkles,
+  },
+  {
+    id: 'learn' as TabType,
+    label: 'Read More',
+    sublabel: 'Knowledge & compare',
+    icon: BookOpen,
+  },
+];
+
 export default function TabsNavigation({ activeTab, setActiveTab }: TabsNavigationProps) {
   return (
-    <nav className="bg-white border-b border-[#D4D4D8] px-6 py-2 flex items-center gap-4 overflow-x-auto scrollbar-none" id="tabs-navigation">
-      <button
-        onClick={() => setActiveTab('flow')}
-        id="btn-tab-flow"
-        className={`flex items-center gap-2 px-4 py-2.5 text-sm md:text-base font-bold uppercase transition-all tracking-wider border-b-2 ${
-          activeTab === 'flow'
-            ? 'border-blue-600 text-blue-600 font-black'
-            : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-[#D4D4D8]'
-        }`}
-      >
-        <Layers className="h-5 w-5" /> Stack Builder
-      </button>
-      <button
-        onClick={() => setActiveTab('table')}
-        id="btn-tab-table"
-        className={`flex items-center gap-2 px-4 py-2.5 text-sm md:text-base font-bold uppercase transition-all tracking-wider border-b-2 ${
-          activeTab === 'table'
-            ? 'border-blue-600 text-blue-600 font-black'
-            : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-[#D4D4D8]'
-        }`}
-      >
-        <Sliders className="h-5 w-5" /> Stack Comparison Matrix
-      </button>
-      <button
-        onClick={() => setActiveTab('graphs')}
-        id="btn-tab-graphs"
-        className={`flex items-center gap-2 px-4 py-2.5 text-sm md:text-base font-bold uppercase transition-all tracking-wider border-b-2 ${
-          activeTab === 'graphs'
-            ? 'border-blue-600 text-blue-600 font-black'
-            : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-[#D4D4D8]'
-        }`}
-      >
-        <Compass className="h-5 w-5" /> Visual Topology Nodes
-      </button>
-      <button
-        onClick={() => setActiveTab('builder')}
-        id="btn-tab-builder"
-        className={`flex items-center gap-2 px-4 py-2.5 text-sm md:text-base font-bold uppercase transition-all tracking-wider border-b-2 ${
-          activeTab === 'builder'
-            ? 'border-blue-600 text-blue-600 font-black'
-            : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-[#D4D4D8]'
-        }`}
-      >
-        <Sparkles className="h-5 w-5 text-yellow-500 animate-pulse" /> Vibecoder Smart Advisor
-      </button>
+    <nav
+      className="bg-white border-b border-[#D4D4D8] px-4 flex items-end gap-1 overflow-x-auto scrollbar-none"
+      id="tabs-navigation"
+    >
+      {TABS.map(tab => {
+        const Icon = tab.icon;
+        const active = activeTab === tab.id;
+        return (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            id={`btn-tab-${tab.id}`}
+            className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all whitespace-nowrap ${
+              active
+                ? 'border-blue-600 text-blue-700'
+                : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'
+            }`}
+          >
+            <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
+            <div className="flex flex-col items-start">
+              <span className={`text-sm font-black leading-tight ${active ? 'text-blue-700' : ''}`}>
+                {tab.label}
+              </span>
+              <span className="text-xs text-gray-400 leading-tight hidden sm:block">
+                {tab.sublabel}
+              </span>
+            </div>
+          </button>
+        );
+      })}
     </nav>
   );
 }
