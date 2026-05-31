@@ -4,7 +4,7 @@ import { getMermaid } from '../utils/mermaid';
 import {
   ArrowRight, Check, ChevronRight, AlertTriangle, CheckCircle2,
   Copy, Terminal, Layers, FileCode2, RotateCcw, ChevronDown,
-  Map, BookOpen, Clock, Code2
+  Map, BookOpen, Clock, Code2, Link2, ExternalLink, XCircle, BookMarked
 } from 'lucide-react';
 import { LEARNING_ROADMAP } from '../data/toolKnowledge';
 import {
@@ -64,7 +64,7 @@ function OptionCard({
           ? 'border-red-200 bg-red-50/40 hover:border-red-300 opacity-70'
           : isRecommended
           ? 'border-emerald-300 bg-emerald-50/40 hover:border-emerald-400 hover:shadow-sm'
-          : 'border-[#D4D4D8] bg-white hover:border-gray-400 hover:shadow-sm'
+          : 'border-[#D4D4D8] dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:border-gray-400 dark:hover:border-zinc-500 hover:shadow-sm'
       }`}
     >
       {/* header row */}
@@ -141,6 +141,45 @@ function OptionCard({
   );
 }
 
+// ─── ASK AI PROMPT ───────────────────────────────────────────────────────────
+
+function AskAIPrompt({ prompt, handleCopyClipboard }: { prompt: string; handleCopyClipboard: (t: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(prompt);
+    handleCopyClipboard(prompt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="mt-1">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+      >
+        <BookMarked className="h-3.5 w-3.5" />
+        Not sure? Copy a prompt to ask your AI
+        <ChevronDown className={`h-3 w-3 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="mt-2 bg-blue-50 border border-blue-200 rounded p-3 flex flex-col gap-2">
+          <p className="text-xs text-blue-800 leading-relaxed font-mono">{prompt}</p>
+          <button
+            onClick={handleCopy}
+            className="self-start flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded transition-all"
+          >
+            {copied ? <><Check className="h-3.5 w-3.5" /> Copied!</> : <><Copy className="h-3.5 w-3.5" /> Copy prompt</>}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── QUESTION PANEL ───────────────────────────────────────────────────────────
 
 function QuestionPanel({
@@ -148,11 +187,13 @@ function QuestionPanel({
   onAnswer,
   existingAnswer,
   answers,
+  onKeyboardSelect,
 }: {
   question: FlowQuestion;
   onAnswer: (answer: string | string[]) => void;
   existingAnswer?: string | string[];
   answers: AnswerMap;
+  onKeyboardSelect?: (handler: (idx: number) => void) => void;
 }) {
   const [textVal, setTextVal] = useState<string>(
     typeof existingAnswer === 'string' ? existingAnswer : ''
@@ -172,6 +213,17 @@ function QuestionPanel({
     }
   }, [question.id]);
 
+  // Register keyboard select handler so the parent can trigger number key presses
+  useEffect(() => {
+    if (question.type === 'single' && onKeyboardSelect) {
+      onKeyboardSelect((idx: number) => {
+        const opt = question.options?.[idx];
+        if (opt) handleSingleClick(opt.id);
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question.id, question.type]);
+
   const handleSingleClick = (id: string) => {
     setSingleSel(id);
     // auto-advance on single select after tiny delay for visual feedback
@@ -190,7 +242,7 @@ function QuestionPanel({
         <input
           ref={inputRef as React.RefObject<HTMLInputElement>}
           type="text"
-          className="bg-white border-2 border-[#D4D4D8] focus:border-blue-500 text-gray-950 font-bold placeholder-gray-400 py-3 px-4 text-base rounded transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="bg-white dark:bg-zinc-800 border-2 border-[#D4D4D8] dark:border-zinc-600 focus:border-blue-500 text-gray-950 dark:text-zinc-100 font-bold placeholder-gray-400 dark:placeholder-zinc-500 py-3 px-4 text-base rounded transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           value={textVal}
           onChange={e => setTextVal(e.target.value)}
           placeholder={question.placeholder}
@@ -212,7 +264,7 @@ function QuestionPanel({
       <div className="flex flex-col gap-3">
         <textarea
           ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-          className="bg-white border-2 border-[#D4D4D8] focus:border-blue-500 text-gray-950 placeholder-gray-400 py-3 px-4 text-sm rounded transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none leading-relaxed"
+          className="bg-white dark:bg-zinc-800 border-2 border-[#D4D4D8] dark:border-zinc-600 focus:border-blue-500 text-gray-950 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500 py-3 px-4 text-sm rounded transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none leading-relaxed"
           rows={3}
           value={textVal}
           onChange={e => setTextVal(e.target.value)}
@@ -279,6 +331,148 @@ function QuestionPanel({
 
 // ─── RESULTS PANEL ────────────────────────────────────────────────────────────
 
+// ─── PERSONALISED LEARNING PATH ──────────────────────────────────────────────
+
+interface LearnStep {
+  topic: string;
+  time: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  resource: string;
+  resourceLabel: string;
+}
+
+function getLearningPath(answers: AnswerMap): LearnStep[] {
+  const steps: LearnStep[] = [];
+  const frontend = answers['frontend_choice'] as string;
+  const backend = answers['backend_choice'] as string;
+  const db = (answers['db_for_vercel'] || answers['db_general']) as string;
+  const auth = answers['auth_strategy'] as string;
+  const authLib = answers['auth_library'] as string;
+  const deploy = answers['deploy_target'] as string;
+  const ai = answers['ai_integration'] as string;
+
+  // Step 1: Frontend
+  const frontendResources: Record<string, { topic: string; url: string; label: string; time: string; diff: LearnStep['difficulty'] }> = {
+    nextjs: { topic: 'Next.js fundamentals', url: 'https://nextjs.org/learn', label: 'Next.js official tutorial (free)', time: '6–8 hrs', diff: 'Intermediate' },
+    react_vite: { topic: 'React basics', url: 'https://react.dev/learn', label: 'React.dev official guide (free)', time: '4–6 hrs', diff: 'Beginner' },
+    sveltekit: { topic: 'SvelteKit fundamentals', url: 'https://learn.svelte.dev', label: 'learn.svelte.dev (interactive, free)', time: '4–6 hrs', diff: 'Beginner' },
+    vue_nuxt: { topic: 'Vue + Nuxt basics', url: 'https://vuejs.org/tutorial/', label: 'Vue.js interactive tutorial (free)', time: '4–6 hrs', diff: 'Beginner' },
+    vanilla: { topic: 'HTML, CSS & JavaScript', url: 'https://developer.mozilla.org/en-US/docs/Learn', label: 'MDN Web Docs (free)', time: '10–20 hrs', diff: 'Beginner' },
+  };
+  const fe = frontendResources[frontend];
+  if (fe) steps.push({ topic: fe.topic, time: fe.time, difficulty: fe.diff, resource: fe.url, resourceLabel: fe.label });
+
+  // Step 2: Styling
+  const stylingResources: Record<string, LearnStep> = {
+    tailwind: { topic: 'Tailwind CSS', time: '2–3 hrs', difficulty: 'Beginner', resource: 'https://tailwindcss.com/docs', resourceLabel: 'Tailwind docs (free)' },
+    shadcn: { topic: 'shadcn/ui components', time: '1–2 hrs', difficulty: 'Beginner', resource: 'https://ui.shadcn.com/docs', resourceLabel: 'shadcn/ui docs (free)' },
+    shadcn_svelte: { topic: 'shadcn-svelte components', time: '1–2 hrs', difficulty: 'Beginner', resource: 'https://www.shadcn-svelte.com/docs', resourceLabel: 'shadcn-svelte docs (free)' },
+    nuxt_ui: { topic: 'Nuxt UI components', time: '1–2 hrs', difficulty: 'Beginner', resource: 'https://ui.nuxt.com/getting-started', resourceLabel: 'Nuxt UI docs (free)' },
+  };
+  const styling = answers['styling_choice'] as string;
+  const st = stylingResources[styling];
+  if (st) steps.push(st);
+
+  // Step 3: Backend / API
+  if (backend === 'express_node') {
+    steps.push({ topic: 'Express.js API basics', time: '3–4 hrs', difficulty: 'Intermediate', resource: 'https://expressjs.com/en/starter/hello-world.html', resourceLabel: 'Express.js docs (free)' });
+  } else if (backend === 'fastapi_py') {
+    steps.push({ topic: 'FastAPI with Python', time: '4–6 hrs', difficulty: 'Intermediate', resource: 'https://fastapi.tiangolo.com/tutorial/', resourceLabel: 'FastAPI tutorial (free)' });
+  }
+
+  // Step 4: Database
+  const dbResources: Record<string, LearnStep> = {
+    supabase: { topic: 'Supabase database & auth', time: '2–3 hrs', difficulty: 'Beginner', resource: 'https://supabase.com/docs/guides/getting-started', resourceLabel: 'Supabase getting started (free)' },
+    postgres_self: { topic: 'PostgreSQL with Prisma ORM', time: '3–4 hrs', difficulty: 'Intermediate', resource: 'https://www.prisma.io/learn', resourceLabel: 'Prisma learn (free)' },
+    neon: { topic: 'Neon Postgres + Prisma', time: '2–3 hrs', difficulty: 'Intermediate', resource: 'https://neon.tech/docs/get-started-with-neon/connect-neon', resourceLabel: 'Neon quickstart (free)' },
+    mongodb_atlas: { topic: 'MongoDB Atlas basics', time: '2–3 hrs', difficulty: 'Beginner', resource: 'https://www.mongodb.com/docs/atlas/getting-started/', resourceLabel: 'MongoDB Atlas quickstart (free)' },
+  };
+  const dbStep = dbResources[db];
+  if (dbStep) steps.push(dbStep);
+
+  // Step 5: Auth
+  if (auth !== 'no_auth') {
+    const authResources: Record<string, LearnStep> = {
+      nextauth: { topic: 'Auth.js setup & OAuth', time: '2–3 hrs', difficulty: 'Intermediate', resource: 'https://authjs.dev/getting-started', resourceLabel: 'Auth.js docs (free)' },
+      clerk: { topic: 'Clerk auth integration', time: '1–2 hrs', difficulty: 'Beginner', resource: 'https://clerk.com/docs/quickstarts/nextjs', resourceLabel: 'Clerk quickstart (free)' },
+      better_auth: { topic: 'BetterAuth setup', time: '2–3 hrs', difficulty: 'Intermediate', resource: 'https://www.better-auth.com/docs/installation', resourceLabel: 'BetterAuth docs (free)' },
+    };
+    const authStep = authResources[authLib];
+    if (authStep) steps.push(authStep);
+    else if (answers['auth_supabase'] === 'supabase_auth_yes') {
+      steps.push({ topic: 'Supabase Auth', time: '1–2 hrs', difficulty: 'Beginner', resource: 'https://supabase.com/docs/guides/auth', resourceLabel: 'Supabase Auth docs (free)' });
+    }
+  }
+
+  // Step 6: AI (if applicable)
+  if (ai === 'llm_chat') {
+    steps.push({ topic: 'Vercel AI SDK for streaming chat', time: '2–3 hrs', difficulty: 'Intermediate', resource: 'https://sdk.vercel.ai/docs/getting-started', resourceLabel: 'Vercel AI SDK docs (free)' });
+  } else if (ai === 'rag_vector') {
+    steps.push({ topic: 'RAG with LangChain', time: '4–6 hrs', difficulty: 'Advanced', resource: 'https://python.langchain.com/docs/tutorials/rag/', resourceLabel: 'LangChain RAG tutorial (free)' });
+  }
+
+  // Step 7: Deploy
+  const deployResources: Record<string, LearnStep> = {
+    vercel: { topic: 'Deploy to Vercel', time: '30 min', difficulty: 'Beginner', resource: 'https://vercel.com/docs/getting-started-with-vercel', resourceLabel: 'Vercel getting started (free)' },
+    railway: { topic: 'Deploy to Railway', time: '1 hr', difficulty: 'Beginner', resource: 'https://docs.railway.app/getting-started', resourceLabel: 'Railway getting started (free)' },
+    vps: { topic: 'Linux server setup (Nginx + PM2)', time: '4–6 hrs', difficulty: 'Advanced', resource: 'https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu', resourceLabel: 'DigitalOcean server guide (free)' },
+    supabase_hosting: { topic: 'Supabase project setup', time: '1 hr', difficulty: 'Beginner', resource: 'https://supabase.com/docs/guides/getting-started', resourceLabel: 'Supabase getting started (free)' },
+  };
+  const depStep = deployResources[deploy];
+  if (depStep) steps.push(depStep);
+
+  return steps;
+}
+
+// ─── COMPATIBILITY SCANNER ───────────────────────────────────────────────────
+
+interface CompatIssue {
+  severity: 'error' | 'warning';
+  title: string;
+  fix: string;
+}
+
+function scanCompatibility(answers: AnswerMap): CompatIssue[] {
+  const issues: CompatIssue[] = [];
+  const frontend = answers['frontend_choice'] as string;
+  const authLib = answers['auth_library'] as string;
+  const db = (answers['db_for_vercel'] || answers['db_general']) as string;
+  const appType = answers['app_type'] as string;
+  const deploy = answers['deploy_target'] as string;
+  const backend = answers['backend_choice'] as string;
+  const styling = answers['styling_choice'] as string;
+  const ai = answers['ai_integration'] as string;
+
+  if (authLib === 'clerk' && (frontend === 'sveltekit' || frontend === 'vue_nuxt')) {
+    issues.push({ severity: 'error', title: 'Clerk has no official SDK for your frontend', fix: 'Switch auth library to Auth.js or BetterAuth — both have native support for SvelteKit and Vue/Nuxt.' });
+  }
+  if (db === 'sqlite' && ['saas', 'ecommerce', 'realtime'].includes(appType)) {
+    issues.push({ severity: 'error', title: 'SQLite can\'t handle concurrent users in production', fix: 'Switch to PostgreSQL (self-hosted or Supabase) — SQLite is only reliable for single-user or prototype apps.' });
+  }
+  if (authLib === 'custom_jwt' && ['saas', 'ecommerce'].includes(appType)) {
+    issues.push({ severity: 'warning', title: 'Hand-written JWT auth is high risk for a production app', fix: 'Use Auth.js, BetterAuth, or Clerk — they handle token rotation, session expiry, and edge cases that are easy to miss.' });
+  }
+  if (styling === 'shadcn' && (frontend === 'sveltekit' || frontend === 'vue_nuxt')) {
+    issues.push({ severity: 'error', title: 'shadcn/ui is React-only — won\'t work with your frontend', fix: 'Use shadcn-svelte for SvelteKit, or Nuxt UI / shadcn-vue for Vue/Nuxt.' });
+  }
+  if (backend === 'supabase_edge' && (appType === 'realtime' || ai === 'agents' || ai === 'rag_vector')) {
+    issues.push({ severity: 'warning', title: 'BaaS edge functions time out before realtime/AI tasks finish', fix: 'Switch to a separate Node.js server (Express on Railway) — it stays running for WebSockets and long AI responses.' });
+  }
+  if (deploy === 'vercel' && appType === 'realtime') {
+    issues.push({ severity: 'error', title: 'Vercel drops WebSocket connections — realtime won\'t work', fix: 'Switch hosting to Railway or a VPS — they keep server connections alive.' });
+  }
+  if (deploy === 'vercel' && (ai === 'agents' || ai === 'rag_vector')) {
+    issues.push({ severity: 'warning', title: 'Serverless functions may time out on long AI tasks', fix: 'Consider Railway or VPS for your backend to avoid 10–30s function timeouts during AI processing.' });
+  }
+  if (backend === 'nextjs_api' && (frontend === 'sveltekit' || frontend === 'vue_nuxt' || frontend === 'react_vite')) {
+    issues.push({ severity: 'error', title: 'Next.js API routes require a Next.js frontend', fix: 'Switch backend to Express.js (Node server) or use your framework\'s built-in routes.' });
+  }
+  if (backend === 'sveltekit_api' && frontend !== 'sveltekit') {
+    issues.push({ severity: 'error', title: 'SvelteKit server routes only work inside a SvelteKit project', fix: 'Switch backend to Express.js or the built-in routes for your chosen framework.' });
+  }
+  return issues;
+}
+
 // Jargon replacements for plain-English mode
 function simplifyPrompt(text: string): string {
   return text
@@ -319,8 +513,20 @@ function ResultsPanel({
   onViewDiagram?: () => void;
   handleCopyClipboard: (text: string) => void;
 }) {
-  const [copied, setCopied] = useState<'prompt' | 'commands' | null>(null);
+  const [copied, setCopied] = useState<'prompt' | 'commands' | 'share' | null>(null);
   const [plainEnglish, setPlainEnglish] = useState(true);
+  const [compatExpanded, setCompatExpanded] = useState(true);
+  const compatIssues = scanCompatibility(answers);
+
+  const handleShare = () => {
+    const url = encodeAnswersToURL(answers);
+    navigator.clipboard.writeText(url);
+    handleCopyClipboard(url);
+    setCopied('share');
+    setTimeout(() => setCopied(null), 2000);
+    // Also update the browser URL without reloading
+    window.history.replaceState(null, '', url);
+  };
 
   const projectName = (answers['project_name'] as string) || 'My App';
   const projectDesc = (answers['project_description'] as string) || '';
@@ -599,6 +805,12 @@ Be specific and production-aware. Call out any gotchas for the chosen stack (e.g
             )}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-1.5 text-xs border border-zinc-600 hover:border-zinc-400 text-gray-300 hover:text-white font-bold px-3 py-2 rounded transition-all"
+            >
+              {copied === 'share' ? <><Check className="h-3.5 w-3.5 text-emerald-400" /> Link copied!</> : <><Link2 className="h-3.5 w-3.5" /> Share stack</>}
+            </button>
             {onViewDiagram && (
               <button
                 onClick={onViewDiagram}
@@ -618,6 +830,40 @@ Be specific and production-aware. Call out any gotchas for the chosen stack (e.g
           </div>
         </div>
       </div>
+
+      {/* COMPATIBILITY BANNER */}
+      {compatIssues.length === 0 ? (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-200 rounded text-sm text-emerald-800 font-medium">
+          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+          Stack looks compatible — no conflicts detected.
+        </div>
+      ) : (
+        <div className={`border rounded overflow-hidden ${compatIssues.some(i => i.severity === 'error') ? 'border-red-300 bg-red-50' : 'border-amber-300 bg-amber-50'}`}>
+          <button
+            onClick={() => setCompatExpanded(v => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 text-left"
+          >
+            <span className={`flex items-center gap-2 text-sm font-bold ${compatIssues.some(i => i.severity === 'error') ? 'text-red-800' : 'text-amber-800'}`}>
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              {compatIssues.length} compatibility issue{compatIssues.length > 1 ? 's' : ''} found — click to {compatExpanded ? 'hide' : 'view'}
+            </span>
+            <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${compatExpanded ? 'rotate-180' : ''}`} />
+          </button>
+          {compatExpanded && (
+            <div className="px-4 pb-4 flex flex-col gap-3 border-t border-red-200">
+              {compatIssues.map((issue, i) => (
+                <div key={i} className="flex flex-col gap-1 pt-3">
+                  <div className={`flex items-start gap-2 text-sm font-bold ${issue.severity === 'error' ? 'text-red-800' : 'text-amber-800'}`}>
+                    {issue.severity === 'error' ? <XCircle className="h-4 w-4 shrink-0 mt-0.5" /> : <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />}
+                    {issue.title}
+                  </div>
+                  <div className="text-sm text-gray-700 ml-6">→ {issue.fix}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* PRIMARY CTA — AI Prompt */}
       <div className="bg-[#0F0F11] border border-zinc-800 rounded p-5 flex flex-col gap-3">
@@ -685,8 +931,8 @@ Be specific and production-aware. Call out any gotchas for the chosen stack (e.g
         </div>
 
         {/* blueprint summary */}
-        <div className="bg-white border border-[#D4D4D8] rounded p-5 flex flex-col gap-4">
-          <h3 className="text-xs font-black uppercase tracking-widest text-gray-600 flex items-center gap-1.5">
+        <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-5 flex flex-col gap-4">
+          <h3 className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-zinc-400 flex items-center gap-1.5">
             <Layers className="h-4 w-4 text-blue-600" /> Stack Summary
           </h3>
           <div className="divide-y divide-gray-100">
@@ -695,17 +941,58 @@ Be specific and production-aware. Call out any gotchas for the chosen stack (e.g
                 <span className="text-gray-500 flex items-center gap-1.5">
                   <span>{row.icon}</span> {row.label}
                 </span>
-                <span className="font-bold text-zinc-900 text-right max-w-[55%]">{row.value}</span>
+                <span className="font-bold text-zinc-900 dark:text-zinc-100 text-right max-w-[55%]">{row.value}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
+      {/* PERSONALISED LEARNING PATH */}
+      {(() => {
+        const path = getLearningPath(answers);
+        if (path.length === 0) return null;
+        const diffColor = (d: LearnStep['difficulty']) =>
+          d === 'Beginner' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+          d === 'Intermediate' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+          'bg-red-50 text-red-700 border-red-200';
+        return (
+          <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-5 flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <BookMarked className="h-4 w-4 text-blue-600" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-gray-600">Your Learning Path</h3>
+              <span className="text-xs text-gray-400 font-normal">— ordered by what to learn first</span>
+            </div>
+            <div className="flex flex-col gap-3">
+              {path.map((step, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <span className="text-xs font-black w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-sm text-zinc-900">{step.topic}</span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded border font-bold ${diffColor(step.difficulty)}`}>{step.difficulty}</span>
+                      <span className="text-xs text-gray-400 flex items-center gap-1"><Clock className="h-3 w-3" />{step.time}</span>
+                    </div>
+                    <a
+                      href={step.resource}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-0.5"
+                    >
+                      <ExternalLink className="h-3 w-3" />{step.resourceLabel}
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* EDITABLE ANSWERS */}
-      <div className="bg-white border border-[#D4D4D8] rounded overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-zinc-50 border-b border-[#D4D4D8]">
-          <span className="text-xs font-black uppercase tracking-widest text-gray-600 flex items-center gap-1.5">
+      <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border-b border-[#D4D4D8] dark:border-zinc-700">
+          <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-zinc-400 flex items-center gap-1.5">
             ✎ Your choices — click any row to edit
           </span>
           <span className="text-xs text-gray-400 italic hidden sm:block">Downstream answers are preserved as defaults</span>
@@ -1031,7 +1318,7 @@ function LivePanel({
   ];
 
   return (
-    <div className="flex flex-col bg-white border border-[#D4D4D8] rounded-lg shadow-sm overflow-hidden sticky top-28">
+    <div className="flex flex-col bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded-lg shadow-sm overflow-hidden sticky top-28">
       {/* panel header */}
       <div className="bg-[#18181B] text-white px-4 py-3 flex items-center justify-between">
         <div>
@@ -1274,7 +1561,7 @@ function ModeSelector({ onSelectPreset, onChooseManually }: {
   return (
     <div className="flex flex-col gap-8 max-w-3xl mx-auto">
       <div className="text-center flex flex-col gap-2">
-        <h1 className="text-3xl font-black text-zinc-900 leading-tight">What are you building?</h1>
+        <h1 className="text-3xl font-black text-zinc-900 dark:text-zinc-100 leading-tight">What are you building?</h1>
         <p className="text-base text-gray-500 leading-relaxed">
           Pick your project type and we'll recommend the right tools — then you can tweak anything.
         </p>
@@ -1285,7 +1572,7 @@ function ModeSelector({ onSelectPreset, onChooseManually }: {
           <button
             key={preset.id}
             onClick={() => onSelectPreset(preset)}
-            className="text-left p-5 bg-white border-2 border-[#D4D4D8] rounded-lg hover:border-blue-500 hover:shadow-md transition-all group flex flex-col gap-2"
+            className="text-left p-5 bg-white dark:bg-zinc-900 border-2 border-[#D4D4D8] dark:border-zinc-700 rounded-lg hover:border-blue-500 hover:shadow-md transition-all group flex flex-col gap-2"
           >
             <div className="flex items-center gap-3">
               <span className="text-3xl">{preset.emoji}</span>
@@ -1339,20 +1626,59 @@ function saveState(state: { history: HistoryEntry[]; answers: AnswerMap; current
   try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch {}
 }
 
+// ─── URL SHARE ENCODING ───────────────────────────────────────────────────────
+
+function encodeAnswersToURL(answers: AnswerMap): string {
+  try {
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(answers))));
+    const url = new URL(window.location.href);
+    url.searchParams.set('stack', encoded);
+    return url.toString();
+  } catch { return window.location.href; }
+}
+
+function decodeAnswersFromURL(): AnswerMap | null {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const encoded = params.get('stack');
+    if (!encoded) return null;
+    return JSON.parse(decodeURIComponent(escape(atob(encoded))));
+  } catch { return null; }
+}
+
+function buildHistoryFromAnswers(answers: AnswerMap): HistoryEntry[] {
+  const builtHistory: HistoryEntry[] = [];
+  let qId: string | null = FLOW_START;
+  const visited = new Set<string>();
+  while (qId && !visited.has(qId)) {
+    visited.add(qId);
+    const answer = answers[qId];
+    if (answer === undefined) break;
+    builtHistory.push({ questionId: qId, answer });
+    qId = getNextQuestion(qId, answer, answers);
+  }
+  return builtHistory;
+}
+
 export default function ConversationalFlow({ handleCopyClipboard, onComplete, onViewDiagram }: ConversationalFlowProps) {
-  const saved = loadState();
-  // 'select' = mode picker screen; 'wizard' = manual question flow; 'done' handled via done state
+  // Check for shared stack in URL first, then fall back to localStorage
+  const sharedAnswers = decodeAnswersFromURL();
+  const saved = sharedAnswers ? null : loadState();
+
   const [mode, setMode] = useState<'select' | 'wizard'>(() => {
-    // If there's a saved session in progress, skip the mode screen
+    if (sharedAnswers) return 'wizard';
     if (saved && (saved.done || saved.history.length > 0)) return 'wizard';
     return 'select';
   });
-  const [history, setHistory] = useState<HistoryEntry[]>(saved?.history ?? []);
+  const [history, setHistory] = useState<HistoryEntry[]>(() =>
+    sharedAnswers ? buildHistoryFromAnswers(sharedAnswers) : (saved?.history ?? [])
+  );
   const [currentQuestionId, setCurrentQuestionId] = useState<string>(saved?.currentQuestionId ?? FLOW_START);
-  const [answers, setAnswers] = useState<AnswerMap>(saved?.answers ?? {});
-  const [done, setDone] = useState(saved?.done ?? false);
+  const [answers, setAnswers] = useState<AnswerMap>(sharedAnswers ?? saved?.answers ?? {});
+  const [done, setDone] = useState(sharedAnswers ? true : (saved?.done ?? false));
   const bottomRef = useRef<HTMLDivElement>(null);
   const completedRef = useRef(false);
+  const keyboardSelectRef = useRef<((idx: number) => void) | null>(null);
 
   // Sync to localStorage; fire onComplete exactly once when done transitions to true
   useEffect(() => {
@@ -1373,6 +1699,25 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
       }, 80);
     }
   }, [currentQuestionId, done]);
+
+  // Keyboard navigation: number keys 1-9 select options, Backspace goes back
+  useEffect(() => {
+    if (done) return;
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      const digit = parseInt(e.key, 10);
+      if (!isNaN(digit) && digit >= 1 && digit <= 9) {
+        keyboardSelectRef.current?.(digit - 1);
+      }
+      if (e.key === 'Backspace' && history.length > 0) {
+        handleGoBack(history.length - 1);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done, history.length, currentQuestionId]);
 
   const handleAnswer = (answer: string | string[]) => {
     let curAnswers = { ...answers, [currentQuestionId]: answer };
@@ -1419,22 +1764,9 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
   };
 
   const handleSelectPreset = (preset: StackPreset) => {
-    // Build history by walking the flow and replaying the preset answers
     const presetAnswers = preset.answers;
-    const builtHistory: HistoryEntry[] = [];
-    let qId: string | null = FLOW_START;
-    const visited = new Set<string>();
-
-    while (qId && !visited.has(qId)) {
-      visited.add(qId);
-      const answer = presetAnswers[qId];
-      if (answer === undefined) break;
-      builtHistory.push({ questionId: qId, answer });
-      qId = getNextQuestion(qId, answer, presetAnswers);
-    }
-
     setAnswers(presetAnswers);
-    setHistory(builtHistory);
+    setHistory(buildHistoryFromAnswers(presetAnswers));
     setDone(true);
     setMode('wizard');
     onComplete?.(presetAnswers);
@@ -1467,6 +1799,8 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
     );
   }
 
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 items-start" id="conversational-flow">
 
@@ -1474,7 +1808,7 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
       <div className="flex flex-col gap-5 min-w-0">
 
         {/* progress bar */}
-        <div className="bg-white border border-[#D4D4D8] rounded p-4 flex flex-col gap-2 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-4 flex flex-col gap-2 shadow-sm">
           <div className="flex items-center justify-between text-xs font-mono text-gray-500">
             <div className="flex items-center gap-3">
               <span className="font-bold text-gray-700 uppercase tracking-widest">Stack Builder</span>
@@ -1502,7 +1836,7 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="bg-white border-2 border-blue-600 rounded-lg p-6 shadow-md flex flex-col gap-5"
+          className="bg-white dark:bg-zinc-900 border-2 border-blue-600 rounded-lg p-6 shadow-md flex flex-col gap-5"
         >
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-2">
@@ -1518,11 +1852,14 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
                 </button>
               )}
             </div>
-            <h2 className="text-xl font-black text-zinc-900 leading-snug">
+            <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-100 leading-snug">
               {currentQuestion?.question}
             </h2>
             {currentQuestion?.hint && (
               <p className="text-base text-gray-500 leading-relaxed">{currentQuestion.hint}</p>
+            )}
+            {currentQuestion?.askAI && (
+              <AskAIPrompt prompt={currentQuestion.askAI} handleCopyClipboard={handleCopyClipboard} />
             )}
           </div>
 
@@ -1531,18 +1868,56 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
             onAnswer={handleAnswer}
             existingAnswer={answers[currentQuestionId]}
             answers={answers}
+            onKeyboardSelect={(handler) => { keyboardSelectRef.current = handler; }}
           />
+          {currentQuestion?.type === 'single' && currentQuestion.options && currentQuestion.options.length > 1 && (
+            <p className="text-xs text-gray-400 text-center">
+              Press <kbd className="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 font-mono text-[10px]">1</kbd>–<kbd className="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 font-mono text-[10px]">{Math.min(currentQuestion.options.length, 9)}</kbd> to select · <kbd className="bg-gray-100 border border-gray-300 rounded px-1 py-0.5 font-mono text-[10px]">⌫</kbd> to go back
+            </p>
+          )}
         </motion.div>
 
         <div ref={bottomRef} />
       </div>
 
-      {/* RIGHT: live floating panel */}
-      <LivePanel
-        answers={answers}
-        questionId={currentQuestionId}
-        answeredCount={history.length}
-      />
+      {/* RIGHT: live floating panel — hidden on mobile, shown on lg */}
+      <div className="hidden lg:block">
+        <LivePanel
+          answers={answers}
+          questionId={currentQuestionId}
+          answeredCount={history.length}
+        />
+      </div>
+
+      {/* MOBILE: floating "View Stack" button */}
+      <div className="lg:hidden fixed bottom-5 right-5 z-40">
+        <button
+          onClick={() => setMobilePanelOpen(true)}
+          className="flex items-center gap-2 bg-[#18181B] text-white font-bold px-4 py-3 rounded-full shadow-xl text-sm"
+        >
+          <Layers className="h-4 w-4" /> View stack ({history.length})
+        </button>
+      </div>
+
+      {/* MOBILE: slide-up drawer */}
+      {mobilePanelOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMobilePanelOpen(false)} />
+          <div className="relative bg-white rounded-t-2xl shadow-2xl max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+              <span className="font-black text-zinc-900 text-sm">Live Stack Preview</span>
+              <button onClick={() => setMobilePanelOpen(false)} className="text-gray-400 hover:text-gray-700 p-1">✕</button>
+            </div>
+            <div className="p-4">
+              <LivePanel
+                answers={answers}
+                questionId={currentQuestionId}
+                answeredCount={history.length}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

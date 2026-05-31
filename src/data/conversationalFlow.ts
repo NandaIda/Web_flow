@@ -30,6 +30,7 @@ export interface FlowQuestion {
   id: string;
   question: string;
   hint?: string;         // small grey context sentence under question
+  askAI?: string;        // pre-written prompt the user can copy into ChatGPT/Claude
   type: 'single' | 'multi' | 'text' | 'textarea';
   options?: FlowOption[];
   placeholder?: string;
@@ -129,6 +130,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
     id: 'deploy_target',
     question: 'Where will your app live on the internet?',
     hint: 'This is your hosting choice — it affects cost, effort to set up, and what your app can do.',
+    askAI: 'I am building a web app and need to choose where to host it. Explain the difference between these options in plain English, with no jargon: (1) push-to-deploy cloud like Vercel, (2) a managed server platform like Railway, (3) renting a raw Linux server like DigitalOcean, (4) an all-in-one platform like Supabase. Which is best for a beginner building their first web app?',
     type: 'single',
     options: [
       {
@@ -229,6 +231,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
     id: 'db_for_vercel',
     question: 'Where will your app store its data?',
     hint: 'Every app that saves user accounts, content, or settings needs a database. The push-to-deploy platform you chose works best with hosted database services.',
+    askAI: 'I am building a web app hosted on Vercel (or similar serverless platform) and need to choose a database. Explain the difference between Supabase, Neon, PlanetScale, Turso, and MongoDB Atlas in plain English. Which is easiest to set up for a beginner? Which gives the best free tier?',
     type: 'single',
     options: [
       {
@@ -299,6 +302,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
     id: 'db_general',
     question: 'Where will your app store its data?',
     hint: 'Every app that saves user accounts, content, or settings needs a database. With your chosen server setup, you can run one yourself or use a hosted service.',
+    askAI: 'I am building a web app and need to choose a database. Explain in plain English: what is PostgreSQL vs MySQL vs MongoDB vs SQLite? Which should a beginner use and why? What does "self-hosted" mean vs a managed service?',
     type: 'single',
     options: [
       {
@@ -398,6 +402,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
     id: 'auth_strategy',
     question: 'How will users log in to your app?',
     hint: 'Think about your users — do they expect social login or are they OK with email + password?',
+    askAI: 'I am building a web app and need to choose how users log in. Explain in plain English: what is the difference between email+password login, social login (Google/GitHub), magic links, and no auth? Which is easiest to implement? Which do users prefer? Give me a simple recommendation.',
     type: 'single',
     options: [
       {
@@ -532,6 +537,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
     id: 'auth_library',
     question: 'Which tool will handle login for your app?',
     hint: 'This is the code that checks passwords, manages sessions ("stay logged in"), and connects to Google/GitHub login.',
+    askAI: 'I am building a web app and need to add login. Explain the difference between Auth.js (NextAuth), Clerk, BetterAuth, and building JWT auth yourself — in plain English, no jargon. Which is best for a beginner? Which is most flexible long-term? What are the hidden costs of each?',
     type: 'single',
     options: [
       {
@@ -605,6 +611,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
     id: 'frontend_choice',
     question: 'What will you use to build the visual part of your app?',
     hint: 'This is your "frontend framework" — the tool that creates what users see and click. Pick based on your project, not what sounds most impressive.',
+    askAI: 'I need to choose a frontend framework for my web app. Explain the difference between Next.js, plain React (with Vite), SvelteKit, and Vue+Nuxt in plain English. Which is easiest to learn? Which has the most jobs? Which is best for a small team building a SaaS product?',
     type: 'single',
     options: [
       {
@@ -682,6 +689,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
     id: 'backend_choice',
     question: 'How will your app handle data and logic on the server?',
     hint: 'Some frameworks (Next.js, SvelteKit) have this built in — you may not need a separate server at all.',
+    askAI: 'I am building a web app and need to understand my backend options. Explain in plain English: what is a "backend"? What is the difference between using Next.js API routes vs a separate Express.js server vs a Python FastAPI server? When would I need a separate server vs just using what my framework provides?',
     type: 'single',
     options: [
       {
@@ -848,6 +856,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
   ai_integration: {
     id: 'ai_integration',
     question: 'Does your app need AI or LLM features?',
+    askAI: 'I am adding AI to my web app. Explain the difference between: (1) calling OpenAI/Anthropic for chat completions, (2) RAG (retrieval-augmented generation) for searching your own documents, (3) AI agents that do multi-step tasks. Which is easiest to start with? What are the costs and risks of each?',
     type: 'single',
     options: [
       {

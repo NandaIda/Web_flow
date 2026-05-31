@@ -1,10 +1,13 @@
 import React from 'react';
+import { Moon, Sun } from 'lucide-react';
 
 interface HeaderProps {
   predefinedStacksCount: number;
+  dark: boolean;
+  onToggleDark: () => void;
 }
 
-export default function Header({ predefinedStacksCount }: HeaderProps) {
+export default function Header({ predefinedStacksCount, dark, onToggleDark }: HeaderProps) {
   return (
     <header className="flex flex-col md:flex-row items-stretch md:items-center justify-between px-6 py-3 bg-[#18181B] text-white border-b border-[#27272A]" id="site-header">
       <div className="flex items-center gap-3 py-1">
@@ -34,6 +37,13 @@ export default function Header({ predefinedStacksCount }: HeaderProps) {
           </span>
           <span className="text-[10px] text-gray-500 uppercase tracking-widest">SANDBOX READY</span>
         </div>
+        <button
+          onClick={onToggleDark}
+          className="ml-4 p-2 rounded border border-[#27272A] text-gray-400 hover:text-white hover:border-gray-500 transition-all"
+          title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
       </div>
     </header>
   );

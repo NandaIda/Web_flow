@@ -47,13 +47,13 @@ function roadmapCatColor(cat: string) {
 function ToolDrawer({ tool, onClose }: { tool: ToolInfo; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto animate-fade-in">
+      <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto animate-fade-in">
         {/* header */}
         <div className="flex items-start justify-between gap-3 p-5 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <span className="text-3xl">{tool.emoji}</span>
             <div>
-              <h2 className="text-xl font-black text-zinc-900">{tool.name}</h2>
+              <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-100">{tool.name}</h2>
               <span className={`text-xs px-2 py-0.5 rounded border font-bold mt-1 inline-block ${categoryColor(tool.category)}`}>
                 {tool.category.toUpperCase()}
               </span>
@@ -408,7 +408,7 @@ function EcosystemExplorer({ onToolClick }: { onToolClick: (id: string) => void 
                   <button
                     key={n.id}
                     onClick={() => onToolClick(n.id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#D4D4D8] rounded hover:border-blue-500 hover:shadow-sm transition-all text-sm font-medium text-zinc-700 hover:text-blue-700"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded hover:border-blue-500 hover:shadow-sm transition-all text-sm font-medium text-zinc-700 hover:text-blue-700"
                   >
                     <span>{tool.emoji}</span>
                     <span>{tool.name}</span>
@@ -671,7 +671,7 @@ export default function VisualFlowchart({ answers, handleCopyClipboard }: Visual
       )}
 
       {/* tab bar */}
-      <div className="bg-white border border-[#D4D4D8] rounded p-1 flex gap-1 self-start">
+      <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-1 flex gap-1 self-start">
         {tabs.map(tab => (
           <button
             key={tab.id}
@@ -705,7 +705,7 @@ export default function VisualFlowchart({ answers, handleCopyClipboard }: Visual
             </button>
           </div>
 
-          <div className="bg-white border border-[#D4D4D8] rounded p-6 overflow-auto">
+          <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-6 overflow-auto">
             <MermaidChart definition={stackDiagram} id="stack" />
           </div>
 
@@ -725,7 +725,7 @@ export default function VisualFlowchart({ answers, handleCopyClipboard }: Visual
       {activeTab === 'ecosystem' && (
         <div className="flex flex-col gap-4">
           {/* ecosystem sub-tabs */}
-          <div className="flex gap-1 bg-white border border-[#D4D4D8] rounded p-1 self-start flex-wrap">
+          <div className="flex gap-1 bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-1 self-start flex-wrap">
             {([
               { id: 'guide' as EcoTab, label: 'When should I use X?', icon: <Compass className="h-3.5 w-3.5" /> },
               { id: 'explorer' as EcoTab, label: 'Tool Explorer', icon: <Lightbulb className="h-3.5 w-3.5" /> },
@@ -753,7 +753,7 @@ export default function VisualFlowchart({ answers, handleCopyClipboard }: Visual
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-base font-black text-zinc-900">Full Stack Decision Map</h2>
+                  <h2 className="text-base font-black text-zinc-900 dark:text-zinc-100">Full Stack Decision Map</h2>
                   <button
                     onClick={() => handleCopyDiagram(FULL_MAP_DEFINITION)}
                     className="flex items-center gap-1.5 text-xs border border-[#D4D4D8] hover:border-gray-400 text-gray-700 font-bold px-2.5 py-1.5 rounded transition-all"
@@ -761,16 +761,16 @@ export default function VisualFlowchart({ answers, handleCopyClipboard }: Visual
                     {copied ? <><Check className="h-3.5 w-3.5" /> Copied!</> : <><Copy className="h-3.5 w-3.5" /> Copy diagram</>}
                   </button>
                 </div>
-                <div className="bg-white border border-[#D4D4D8] rounded p-4 overflow-auto max-h-[600px]">
+                <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-4 overflow-auto max-h-[600px]">
                   <MermaidChart definition={FULL_MAP_DEFINITION} id="ecosystem" />
                 </div>
               </div>
               <div className="flex flex-col gap-4">
-                <h2 className="text-base font-black text-zinc-900">
+                <h2 className="text-base font-black text-zinc-900 dark:text-zinc-100">
                   🔍 Tool Explorer
                   <span className="text-sm font-normal text-gray-500 ml-2">— click any tool to learn more</span>
                 </h2>
-                <div className="bg-white border border-[#D4D4D8] rounded p-4 overflow-y-auto max-h-[600px]">
+                <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-4 overflow-y-auto max-h-[600px]">
                   <EcosystemExplorer onToolClick={id => setSelectedTool(TOOL_KNOWLEDGE[id] || null)} />
                 </div>
               </div>
@@ -780,7 +780,7 @@ export default function VisualFlowchart({ answers, handleCopyClipboard }: Visual
           {ecoTab === 'map' && (
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-black text-zinc-900">Full Stack Decision Map</h2>
+                <h2 className="text-base font-black text-zinc-900 dark:text-zinc-100">Full Stack Decision Map</h2>
                 <button
                   onClick={() => handleCopyDiagram(FULL_MAP_DEFINITION)}
                   className="flex items-center gap-1.5 text-xs border border-[#D4D4D8] hover:border-gray-400 text-gray-700 font-bold px-2.5 py-1.5 rounded transition-all"
@@ -788,7 +788,7 @@ export default function VisualFlowchart({ answers, handleCopyClipboard }: Visual
                   {copied ? <><Check className="h-3.5 w-3.5" /> Copied!</> : <><Copy className="h-3.5 w-3.5" /> Copy diagram</>}
                 </button>
               </div>
-              <div className="bg-white border border-[#D4D4D8] rounded p-4 overflow-auto max-h-[700px]">
+              <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-4 overflow-auto max-h-[700px]">
                 <MermaidChart definition={FULL_MAP_DEFINITION} id="ecosystem-map" />
               </div>
             </div>

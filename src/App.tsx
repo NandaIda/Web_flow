@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Header from './components/Header';
 import TabsNavigation, { TabType } from './components/TabsNavigation';
@@ -9,10 +9,12 @@ import LearnMore from './components/LearnMore';
 import Footer from './components/Footer';
 import { AnswerMap } from './data/conversationalFlow';
 import { PREDEFINED_STACKS } from './data';
+import { useDarkMode } from './utils/useDarkMode';
 
 const LS_WIZARD_KEY = 'webflow_wizard_state';
 
 export default function App() {
+  const [dark, toggleDark] = useDarkMode();
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     try { return (localStorage.getItem('webflow_active_tab') as TabType) || 'flow'; } catch { return 'flow'; }
   });
@@ -33,10 +35,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] text-[#18181B] flex flex-col font-sans selection:bg-blue-600 selection:text-white" id="root-container">
+    <div className="min-h-screen bg-[#F4F4F5] dark:bg-[#0F0F11] text-[#18181B] dark:text-zinc-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white transition-colors duration-200" id="root-container">
 
       <div className="sticky top-0 z-50">
-        <Header predefinedStacksCount={PREDEFINED_STACKS.length} />
+        <Header predefinedStacksCount={PREDEFINED_STACKS.length} dark={dark} onToggleDark={toggleDark} />
         <TabsNavigation activeTab={activeTab} setActiveTab={switchTab} />
       </div>
 

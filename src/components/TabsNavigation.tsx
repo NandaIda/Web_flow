@@ -38,7 +38,7 @@ const TABS = [
 export default function TabsNavigation({ activeTab, setActiveTab }: TabsNavigationProps) {
   return (
     <nav
-      className="bg-white border-b border-[#D4D4D8] px-4 flex items-end gap-1 overflow-x-auto scrollbar-none"
+      className="bg-white dark:bg-[#18181B] border-b border-[#D4D4D8] dark:border-zinc-800 px-4 flex items-end gap-1 overflow-x-auto scrollbar-none"
       id="tabs-navigation"
     >
       {TABS.map(tab => {
@@ -51,16 +51,16 @@ export default function TabsNavigation({ activeTab, setActiveTab }: TabsNavigati
             id={`btn-tab-${tab.id}`}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all whitespace-nowrap ${
               active
-                ? 'border-blue-600 text-blue-700'
-                : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'
+                ? 'border-blue-600 text-blue-700 dark:text-blue-400'
+                : 'border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-200 hover:border-gray-300 dark:hover:border-zinc-600'
             }`}
           >
-            <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
+            <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-zinc-500'}`} />
             <div className="flex flex-col items-start">
-              <span className={`text-sm font-black leading-tight ${active ? 'text-blue-700' : ''}`}>
+              <span className={`text-sm font-black leading-tight ${active ? 'text-blue-700 dark:text-blue-400' : 'dark:text-zinc-300'}`}>
                 {tab.label}
               </span>
-              <span className="text-xs text-gray-400 leading-tight hidden sm:block">
+              <span className="text-xs text-gray-400 dark:text-zinc-500 leading-tight hidden sm:block">
                 {tab.sublabel}
               </span>
             </div>

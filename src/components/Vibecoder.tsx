@@ -434,7 +434,7 @@ function ChecklistGroup({
       >
         <div className="flex items-center gap-2">
           <Icon className={`h-4 w-4 ${group.color}`} />
-          <span className="font-bold text-base text-zinc-900">{group.label}</span>
+          <span className="font-bold text-base text-zinc-900 dark:text-zinc-100">{group.label}</span>
           {doneCount > 0 && (
             <span className="text-xs bg-blue-600 text-white font-bold px-1.5 py-0.5 rounded-full">
               {doneCount}
@@ -467,7 +467,7 @@ function ChecklistGroup({
                   className="mt-0.5 h-4 w-4 accent-blue-600 shrink-0"
                 />
                 <div className="flex flex-col gap-1 min-w-0">
-                  <span className="text-base font-semibold text-zinc-900">{item.text}</span>
+                  <span className="text-base font-semibold text-zinc-900 dark:text-zinc-100">{item.text}</span>
                   <span className="text-sm text-gray-500 leading-relaxed">{item.tip}</span>
                   {isChecked && (
                     <span className="text-xs font-mono text-blue-700 bg-blue-50 border border-blue-100 px-2 py-1 rounded leading-relaxed mt-1">
@@ -493,7 +493,7 @@ function NoStackYet({ onGoToBuilder }: { onGoToBuilder: () => void }) {
         <Sparkles className="h-8 w-8 text-blue-400" />
       </div>
       <div>
-        <h2 className="text-xl font-black text-zinc-900">No stack built yet</h2>
+        <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-100">No stack built yet</h2>
         <p className="text-sm text-gray-500 mt-1 max-w-sm">
           Complete the Stack Builder first — then come back here to generate your AI prompt and polish the result.
         </p>
@@ -609,7 +609,7 @@ export default function Vibecoder({ answers, handleCopyClipboard, onGoToBuilder 
       <div className="flex flex-col gap-4 sticky top-28">
 
         {/* stack summary pill strip */}
-        <div className="bg-white border border-[#D4D4D8] rounded p-4 flex flex-col gap-2">
+        <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-4 flex flex-col gap-2">
           <div className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Your stack</div>
           <div className="flex flex-wrap gap-1.5">
             {[
@@ -668,7 +668,7 @@ export default function Vibecoder({ answers, handleCopyClipboard, onGoToBuilder 
         </div>
 
         {/* setup commands mini */}
-        <div className="bg-white border border-[#D4D4D8] rounded p-4 flex flex-col gap-2">
+        <div className="bg-white dark:bg-zinc-900 border border-[#D4D4D8] dark:border-zinc-700 rounded p-4 flex flex-col gap-2">
           <h3 className="text-xs font-black uppercase tracking-widest text-gray-500 flex items-center gap-1.5">
             <Terminal className="h-4 w-4 text-gray-400" /> Quick start
           </h3>
