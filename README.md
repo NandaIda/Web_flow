@@ -1,68 +1,66 @@
 # Full-Stack Decision Map & Stack Builder
 
-A guided wizard that helps developers choose the right tech stack and generates a production-ready AI prompt (for Cursor, Claude, or ChatGPT) based on their answers.
+A wizard that turns stack decisions into a production-ready AI prompt and shell setup script. Answer questions about your project, get a prompt you can paste straight into Cursor, Claude, or ChatGPT.
+
+## Who it's for
+
+Anyone who wants to build a web app but doesn't want to spend hours researching which tools go together — especially vibe-coders who rely on AI to write the code but still need to make foundational decisions before the AI can help effectively.
 
 ## What it does
 
-1. **Stack Wizard** — branching conversational flow. Asks questions about app type, deployment target, database, auth, frontend, backend, and styling. Each answer determines the next question.
-2. **Visual Flowchart** — renders a Mermaid diagram of the chosen stack architecture.
-3. **Prompt Builder (Vibecoder)** — improvement checklists (UI, UX, Security, Performance, Personalization). Checked items are injected into a generated AI prompt ready to paste into any AI coding tool.
-4. **Learn** — tool glossary and learning roadmap for each technology in the wizard.
+**1. Stack Wizard (Flow tab)**
+Branching questions, one at a time: app type → hosting → database → auth → frontend → backend → styling → AI → payments. Each answer shapes the next question. Previous choices are remembered — go back and change anything.
+
+As you answer, every subsequent option shows a **Best Match** or **Not Recommended** badge based on what you've already chosen. Pick SvelteKit and shadcn/ui turns red. Pick Next.js and it turns green. The wizard knows which tools are compatible.
+
+**2. Visual Diagram (Graphs tab)**
+Renders a Mermaid flowchart of your specific chosen stack. Also shows a full ecosystem map of all possible paths from frontend to production.
+
+**3. Prompt Builder (Builder tab)**
+Improvement checklists across five categories: UI, UX, Personalization, Security, Performance. Check what you want. The AI prompt on the right updates live — and every snippet uses the correct library for your chosen framework (not hardcoded React/Next.js names regardless of what you picked).
+
+Copy the prompt. Paste into any AI coding tool. Start building.
+
+**4. Learn tab**
+Tool glossary with plain-English explanations of every technology in the wizard: what it is, why it exists, beginner advice, difficulty rating, and what it pairs with.
 
 ## Tech stack
 
-- **React 19 + Vite** — frontend only, no backend server
-- **Tailwind CSS v4** — utility styling
-- **Motion (Framer Motion)** — page transitions and animations
-- **Mermaid** — flowchart rendering
-- **Lucide React** — icons
-- **TypeScript** throughout
+- React 19 + Vite — SPA, no backend
+- Tailwind CSS v4
+- Motion (Framer Motion) — transitions
+- Mermaid — diagram rendering
+- TypeScript throughout
 
 ## Run locally
 
-**Prerequisites:** Node.js 18+
-
 ```bash
 npm install
-npm run dev
-# Opens at http://localhost:3000
+npm run dev     # http://localhost:3000
 ```
 
-No backend required. The wizard runs entirely in the browser. The Gemini API key in `.env.local` is only needed if AI generation features are enabled.
-
-```bash
-cp .env.example .env.local
-# Add your GEMINI_API_KEY if needed
-```
+No backend required. No API keys needed for the wizard itself.
 
 ## Project structure
 
 ```
 src/
   components/
-    ConversationalFlow.tsx   # wizard UI and branching renderer
-    VisualFlowchart.tsx      # Mermaid diagram of chosen stack
+    ConversationalFlow.tsx   # wizard UI, history, results, setup commands
     Vibecoder.tsx            # checklist + AI prompt builder
+    VisualFlowchart.tsx      # Mermaid diagrams
     LearnMore.tsx            # tool glossary and roadmap
-    Header.tsx
-    TabsNavigation.tsx
-    Footer.tsx
+    Header.tsx / Footer.tsx / TabsNavigation.tsx
   data/
-    conversationalFlow.ts    # all questions, options, and branching logic
-    predefinedStacks.ts      # static stack comparison presets
-    toolKnowledge.ts         # tool glossary entries
-  App.tsx                    # tab routing and state wiring
+    conversationalFlow.ts    # all questions, options, branching, compat rules
+    predefinedStacks.ts      # static stack presets
+    toolKnowledge.ts         # tool glossary content
+  App.tsx
 ```
-
-## Known limitation: cross-framework prompt accuracy
-
-The prompt builder currently injects improvement snippets (e.g. `next/image`, `Framer Motion`, `shadcn`) without checking which frontend the user chose. If you pick **SvelteKit** or **Vue + Nuxt**, some generated prompt lines will incorrectly reference React/Next.js-specific libraries.
-
-This is a tracked issue — see `CLAUDE.md` for the full mapping of which snippets apply to which frontends and the planned fix.
 
 ## Build
 
 ```bash
-npm run build    # outputs to /dist
-npm run preview  # preview the production build
+npm run build      # output to /dist
+npm run lint       # TypeScript type check
 ```

@@ -19,65 +19,179 @@ interface CheckItem {
   id: string;
   text: string;
   tip: string;
-  promptSnippet: string; // what to add to the AI prompt to get this
+  promptSnippet: (answers: AnswerMap) => string;
   category: 'ui' | 'ux' | 'perf' | 'security' | 'personal';
 }
+
+// ── per-framework snippet helpers ─────────────────────────────────────────────
+
+function toastSnippet(answers: AnswerMap): string {
+  const f = answers['frontend_choice'];
+  if (f === 'sveltekit') return 'Add svelte-sonner for toast notifications on all mutations — import Toaster in your root layout and call toast.success / toast.error from event handlers.';
+  if (f === 'vue_nuxt')  return 'Add vue-toastification (or the built-in Nuxt UI toast) for success, error, and info notifications on all mutations.';
+  return 'Integrate sonner (or react-hot-toast) for success, error, and info toast notifications on all mutations.';
+}
+
+function fontSnippet(answers: AnswerMap): string {
+  const f = answers['frontend_choice'];
+  if (f === 'nextjs')    return 'Add Google Fonts (e.g. Inter for body, Sora for headings) via next/font/google — import and apply in the root layout.';
+  if (f === 'sveltekit') return 'Add Google Fonts via a <link> tag in app.html or use @fontsource npm packages — e.g. @fontsource/inter for body, @fontsource/sora for headings.';
+  if (f === 'vue_nuxt')  return 'Add Google Fonts via nuxt/fonts module or a <link> in nuxt.config — e.g. Inter for body, Sora for headings.';
+  return 'Add Google Fonts via a <link> tag in index.html — e.g. Inter for body, Sora for headings. Apply via Tailwind font-sans config.';
+}
+
+function animationSnippet(answers: AnswerMap): string {
+  const f = answers['frontend_choice'];
+  if (f === 'sveltekit') return 'Use Svelte\'s built-in transition directives (fade, fly, scale) for page transitions and list entrance animations — zero extra dependencies.';
+  if (f === 'vue_nuxt')  return 'Use Vue\'s built-in <Transition> and <TransitionGroup> components for page transitions and list animations, or add @vueuse/motion for declarative spring animations.';
+  return 'Add Framer Motion (motion/react) for page transitions and entrance animations on list items and cards — wrap elements with <motion.div> and set initial/animate/exit props.';
+}
+
+function tailwindConfigSnippet(answers: AnswerMap): string {
+  const f = answers['frontend_choice'];
+  if (f === 'sveltekit' || f === 'vue_nuxt') return 'Define a custom color palette in tailwind.config.js (extend.colors) with your brand primary and accent — reference them as bg-brand-500, text-accent-600 throughout.';
+  return 'Define a custom color palette in tailwind.config.ts (extend.colors) with your brand primary and accent — reference them as bg-brand-500, text-accent-600 throughout.';
+}
+
+function confirmDialogSnippet(answers: AnswerMap): string {
+  const f = answers['frontend_choice'];
+  const s = answers['styling_choice'];
+  if (f === 'sveltekit') return 'Add a confirmation dialog using bits-ui Dialog (or shadcn-svelte AlertDialog) for all delete operations — only call the delete handler after the user confirms.';
+  if (f === 'vue_nuxt')  return 'Add a confirmation dialog using Nuxt UI Modal (or shadcn-vue AlertDialog) for all delete operations — only call the delete handler after the user confirms.';
+  if (s === 'shadcn')    return 'Add a shadcn/ui AlertDialog confirmation for all delete operations — only call the API after the user confirms in the dialog.';
+  return 'Add a modal confirmation dialog for all delete operations — render it with a state flag and only call the delete API after the user confirms.';
+}
+
+function breadcrumbSnippet(answers: AnswerMap): string {
+  const f = answers['frontend_choice'];
+  if (f === 'sveltekit') return 'Add a breadcrumb component using the current $page.url.pathname — split the path into segments and render each as a link with a > separator.';
+  if (f === 'vue_nuxt')  return 'Add a breadcrumb component using useRoute() — map the matched route segments to labels and render with a > separator.';
+  if (f === 'nextjs')    return 'Add a breadcrumb component using shadcn/ui Breadcrumb and usePathname() — split the path into segments and render each as a link.';
+  return 'Add a breadcrumb component using the current URL pathname — split into segments and render each as a link with a > separator.';
+}
+
+function profileSnippet(answers: AnswerMap): string {
+  const db = (answers['db_for_vercel'] || answers['db_general']) as string;
+  const storageHint = db === 'supabase'
+    ? 'Store avatars in your managed object storage bucket.'
+    : 'Store avatars in an object storage bucket (e.g. S3-compatible or Cloudflare R2).';
+  return `Create a /profile page with avatar upload, display name, and email change. ${storageHint} Show the user\'s initials as a fallback if no photo is set.`;
+}
+
+function avatarSnippet(answers: AnswerMap): string {
+  const f = answers['frontend_choice'];
+  const db = (answers['db_for_vercel'] || answers['db_general']) as string;
+  const storageHint = db === 'supabase'
+    ? 'Store in your managed object storage bucket.'
+    : 'Store in an object storage bucket (S3-compatible or Cloudflare R2).';
+  if (f === 'sveltekit') return `Add avatar drag-and-drop upload using svelte-dropzone (or a plain <input type="file"> with dragover events). ${storageHint} Show initials if no photo.`;
+  if (f === 'vue_nuxt')  return `Add avatar drag-and-drop upload using vue-dropzone or a plain <input type="file"> with @dragover handling. ${storageHint} Show initials if no photo.`;
+  return `Add avatar drag-and-drop upload using react-dropzone. ${storageHint} Show initials if no photo.`;
+}
+
+function i18nSnippet(answers: AnswerMap): string {
+  const f = answers['frontend_choice'];
+  if (f === 'nextjs')    return 'Add next-intl for i18n — place message files under /messages/[locale].json, wrap the root layout with NextIntlClientProvider, and use useTranslations() in components.';
+  if (f === 'sveltekit') return 'Add paraglide-js (or svelte-i18n) for i18n — define message files per locale and import the t() helper in components. Store the user\'s locale preference in their profile.';
+  if (f === 'vue_nuxt')  return 'Add @nuxtjs/i18n for i18n — configure locales in nuxt.config and use useI18n() / $t() in components. Store the user\'s locale preference in their profile.';
+  return 'Add i18n by storing translations in /locales/[lang].json and loading the active locale from localStorage or the user profile. Use a t(key) helper function throughout.';
+}
+
+function chartSnippet(answers: AnswerMap): string {
+  const f = answers['frontend_choice'];
+  if (f === 'sveltekit') return 'Create a /dashboard page with stat cards and activity graphs using layerchart or svelte-chartjs — both are Svelte-native chart libraries.';
+  if (f === 'vue_nuxt')  return 'Create a /dashboard page with stat cards and activity graphs using Chart.js via vue-chartjs, or the built-in Nuxt UI stats components.';
+  return 'Create a /dashboard page with stat cards (total items, recent activity, usage graph) using recharts — wrap charts in ResponsiveContainer for fluid sizing.';
+}
+
+function rateLimitSnippet(answers: AnswerMap): string {
+  const b = answers['backend_choice'];
+  if (b === 'fastapi_py') return 'Add rate limiting using slowapi (a FastAPI-compatible rate limiter) with Redis as the backend. Apply to all auth and mutation endpoints via a decorator.';
+  if (b === 'go_backend') return 'Add rate limiting using golang.org/x/time/rate or a middleware like go-chi/httprate. Apply to all auth and mutation routes.';
+  if (b === 'express_node') return 'Add rate limiting using express-rate-limit with a Redis store (rate-limit-redis). Apply to all auth and mutation routes as middleware.';
+  return 'Add rate limiting using a Redis-backed rate limiter. Apply to all auth and mutation API routes — return 429 Too Many Requests when the limit is exceeded.';
+}
+
+function envValidationSnippet(answers: AnswerMap): string {
+  const b = answers['backend_choice'];
+  if (b === 'fastapi_py') return 'Use pydantic-settings to validate all required environment variables at startup — define a Settings class and call Settings() at module load so the app crashes early on missing config.';
+  if (b === 'go_backend') return 'Validate required environment variables at startup using a struct with envconfig or godotenv — panic early if any required key is missing.';
+  return 'Use zod (or t3-env) to validate all required environment variables at startup — define a schema and call parse() so the server crashes immediately on missing config rather than failing silently in production.';
+}
+
+function imageSnippet(answers: AnswerMap): string {
+  const f = answers['frontend_choice'];
+  if (f === 'nextjs')    return 'Use next/image for all images — set the sizes prop correctly, use WebP format via the default loader, and add placeholder="blur" with blurDataURL for progressive loading.';
+  if (f === 'sveltekit') return 'Use @sveltejs/enhanced-img for all images — import via ?enhanced query and set the sizes attribute. It auto-generates WebP and adds a blur placeholder at build time.';
+  if (f === 'vue_nuxt')  return 'Use nuxt/image (<NuxtImg>) for all images — set the sizes prop, format="webp", and placeholder for progressive loading.';
+  return 'Use native lazy loading (loading="lazy") and serve images as WebP. Add an explicit width and height to prevent layout shift. Use an IntersectionObserver for progressive reveal.';
+}
+
+function cacheSnippet(answers: AnswerMap): string {
+  const b = answers['backend_choice'];
+  if (b === 'fastapi_py') return 'Add Redis caching for expensive DB queries using redis-py (async) — cache serialized Pydantic model responses for 60 seconds with a versioned key, and invalidate on mutation.';
+  if (b === 'go_backend') return 'Add Redis caching for expensive DB queries using go-redis — cache JSON-serialized responses for 60 seconds and invalidate on mutation.';
+  if (b === 'nextjs')     return 'Use Next.js built-in fetch caching with revalidate: 60 in Server Components for frequently read data, and unstable_cache for DB query memoisation.';
+  return 'Add Redis caching for expensive DB queries — cache serialized responses for 60 seconds using a consistent key strategy, and invalidate the key on any mutation to that data.';
+}
+
+// ── checklist definitions ─────────────────────────────────────────────────────
 
 const UI_CHECKLIST: CheckItem[] = [
   {
     id: 'ui-dark',
     text: 'Dark mode support',
     tip: 'Toggle between light and dark theme. Users expect this in modern apps.',
-    promptSnippet: 'Include a dark mode toggle using Tailwind dark: classes and a theme stored in localStorage.',
+    promptSnippet: () => 'Include a dark mode toggle — store the preference in localStorage and apply it via a class on the root element. Use Tailwind dark: variant classes for all themed colors.',
     category: 'ui',
   },
   {
     id: 'ui-mobile',
     text: 'Mobile-first responsive layout',
     tip: 'Design for phone screen first, then scale up. Most users are on mobile.',
-    promptSnippet: 'Ensure all layouts are mobile-first responsive using Tailwind sm/md/lg breakpoints.',
+    promptSnippet: () => 'Ensure all layouts are mobile-first responsive using Tailwind sm/md/lg breakpoints. No fixed widths below the lg breakpoint.',
     category: 'ui',
   },
   {
     id: 'ui-loading',
     text: 'Loading states & skeleton screens',
     tip: 'Never show a blank page. Show skeleton loaders while data loads.',
-    promptSnippet: 'Add skeleton loading states for all data-fetching components using Tailwind animate-pulse.',
+    promptSnippet: () => 'Add skeleton loading states for all data-fetching components using Tailwind animate-pulse — match the skeleton shape to the real content so there is no layout shift on load.',
     category: 'ui',
   },
   {
     id: 'ui-empty',
     text: 'Empty state designs',
     tip: 'When a list is empty, show a friendly illustration and a CTA — not a blank space.',
-    promptSnippet: 'Design empty state components with an icon, message, and call-to-action button for all list views.',
+    promptSnippet: () => 'Design empty state components with an icon, a short message, and a call-to-action button for all list and table views.',
     category: 'ui',
   },
   {
     id: 'ui-toast',
     text: 'Toast / notification feedback',
     tip: 'Every user action (save, delete, error) should show a toast message.',
-    promptSnippet: 'Integrate sonner or react-hot-toast for success, error, and info toast notifications on all mutations.',
+    promptSnippet: toastSnippet,
     category: 'ui',
   },
   {
     id: 'ui-fonts',
     text: 'Custom typography with Google Fonts',
     tip: 'A good font makes the app feel polished. Pick one heading font + one body font.',
-    promptSnippet: 'Add Google Fonts (e.g. Inter for body, Sora or Cal Sans for headings) via next/font or a link tag.',
+    promptSnippet: fontSnippet,
     category: 'ui',
   },
   {
     id: 'ui-animation',
     text: 'Micro-animations on interactions',
     tip: 'Subtle fade-ins, button press effects, and hover transitions make the UI feel alive.',
-    promptSnippet: 'Add Framer Motion for page transitions and subtle entrance animations on list items and cards.',
+    promptSnippet: animationSnippet,
     category: 'ui',
   },
   {
     id: 'ui-brand-color',
     text: 'Custom brand color palette',
     tip: 'Pick 1–2 brand colors and use them consistently. Avoid relying only on default blue.',
-    promptSnippet: 'Define a custom Tailwind color palette in tailwind.config.ts with my brand primary and accent colors.',
+    promptSnippet: tailwindConfigSnippet,
     category: 'ui',
   },
 ];
@@ -87,35 +201,35 @@ const UX_CHECKLIST: CheckItem[] = [
     id: 'ux-onboarding',
     text: 'Onboarding flow for new users',
     tip: 'First-time users need to understand the app in 10 seconds. Add a welcome step.',
-    promptSnippet: 'Create a 3-step onboarding modal that appears on first login. Show key features and allow skip.',
+    promptSnippet: () => 'Create a 3-step onboarding modal that appears on first login — store completion state in the user record or localStorage. Show key features and allow skip.',
     category: 'ux',
   },
   {
     id: 'ux-search',
     text: 'Search with instant results',
     tip: 'If users can create items, they need to find them fast. Add a search bar with live filtering.',
-    promptSnippet: 'Add a search input with debounced live filtering using a controlled state and Array.filter.',
+    promptSnippet: () => 'Add a search input with debounced live filtering (300ms) using a controlled state variable. Filter client-side with Array.filter when the dataset is small; hit a search API endpoint for larger datasets.',
     category: 'ux',
   },
   {
     id: 'ux-confirm',
     text: 'Confirmation dialogs for destructive actions',
     tip: 'Deleting something should always ask "are you sure?". Prevent accidental data loss.',
-    promptSnippet: 'Add a shadcn AlertDialog confirmation for all delete operations before making the API call.',
+    promptSnippet: confirmDialogSnippet,
     category: 'ux',
   },
   {
     id: 'ux-keyboard',
     text: 'Keyboard shortcuts',
     tip: 'Power users love shortcuts. Even 2–3 shortcuts (new item, search, close modal) feel professional.',
-    promptSnippet: 'Add keyboard shortcuts using useEffect + keydown listeners: Cmd+K for search, Escape to close modals.',
+    promptSnippet: () => 'Add keyboard shortcuts using a keydown event listener on document: Cmd/Ctrl+K to open search, Escape to close modals. Clean up the listener in the component teardown.',
     category: 'ux',
   },
   {
     id: 'ux-breadcrumb',
     text: 'Breadcrumb navigation',
     tip: 'Users should always know where they are in the app hierarchy.',
-    promptSnippet: 'Add a breadcrumb component using shadcn Breadcrumb that reflects the current page path.',
+    promptSnippet: breadcrumbSnippet,
     category: 'ux',
   },
 ];
@@ -125,35 +239,35 @@ const PERSONAL_CHECKLIST: CheckItem[] = [
     id: 'p-profile',
     text: 'User profile page',
     tip: 'Let users see and edit their name, avatar, and account settings.',
-    promptSnippet: 'Create a /profile page with avatar upload (Supabase storage or Cloudinary), display name, and email change.',
+    promptSnippet: profileSnippet,
     category: 'personal',
   },
   {
     id: 'p-avatar',
     text: 'Avatar / profile photo upload',
     tip: 'A photo makes the app feel personal. Use initials as fallback.',
-    promptSnippet: 'Add avatar upload with drag-and-drop using react-dropzone. Store in Supabase Storage. Show initials if no photo.',
+    promptSnippet: avatarSnippet,
     category: 'personal',
   },
   {
     id: 'p-notifs',
     text: 'In-app notifications',
     tip: 'Let users know when something happens to their account or content.',
-    promptSnippet: 'Create a notifications dropdown in the navbar that shows recent activity with read/unread state.',
+    promptSnippet: () => 'Create a notifications dropdown in the navbar that shows recent activity with read/unread state. Store notifications in the database and mark them read on click.',
     category: 'personal',
   },
   {
     id: 'p-lang',
     text: 'Language / locale preference',
     tip: 'If your users are global, let them pick their language.',
-    promptSnippet: 'Add next-intl for i18n. Support at least English and one other language. Store preference in user profile.',
+    promptSnippet: i18nSnippet,
     category: 'personal',
   },
   {
     id: 'p-dashboard',
     text: 'Personal dashboard with stats',
     tip: 'Show the user a summary of their activity, recent items, and key numbers.',
-    promptSnippet: 'Create a /dashboard page with stat cards (total items, recent activity, usage graph) using recharts.',
+    promptSnippet: chartSnippet,
     category: 'personal',
   },
 ];
@@ -163,28 +277,28 @@ const SECURITY_CHECKLIST: CheckItem[] = [
     id: 'sec-rate',
     text: 'Rate limiting on API routes',
     tip: 'Without rate limiting, anyone can spam your API 10,000 times a minute.',
-    promptSnippet: 'Add rate limiting using @upstash/ratelimit with Redis. Apply to all auth and mutation API routes.',
+    promptSnippet: rateLimitSnippet,
     category: 'security',
   },
   {
     id: 'sec-env',
     text: 'Environment variable validation at startup',
     tip: 'The app should crash early if required env vars are missing — not fail silently in production.',
-    promptSnippet: 'Use zod or t3-env to validate all required environment variables at build time.',
+    promptSnippet: envValidationSnippet,
     category: 'security',
   },
   {
     id: 'sec-cors',
     text: 'CORS properly configured',
     tip: 'Only allow your frontend domain to call your API — block everything else.',
-    promptSnippet: 'Configure CORS in the API to only allow requests from the production domain and localhost in development.',
+    promptSnippet: () => 'Configure CORS to only allow requests from the production domain and localhost in development. Reject requests from unknown origins with a 403.',
     category: 'security',
   },
   {
     id: 'sec-input',
     text: 'Input sanitization & validation',
     tip: 'Never trust user input. Validate all form data server-side before storing it.',
-    promptSnippet: 'Use zod schemas to validate all request bodies in API routes. Return 400 with clear error messages on invalid input.',
+    promptSnippet: () => 'Use zod schemas to validate all request bodies in API routes — parse at the top of each handler and return 400 with a structured error message on invalid input.',
     category: 'security',
   },
 ];
@@ -194,21 +308,21 @@ const PERF_CHECKLIST: CheckItem[] = [
     id: 'perf-img',
     text: 'Optimized images (WebP + lazy load)',
     tip: 'Images are the #1 cause of slow pages. Use WebP format and only load images in the viewport.',
-    promptSnippet: 'Use next/image for all images. Set sizes prop correctly and use WebP format. Add blur placeholder.',
+    promptSnippet: imageSnippet,
     category: 'perf',
   },
   {
     id: 'perf-cache',
     text: 'API response caching',
     tip: 'Cache frequently read data (e.g. categories, user profile) to reduce DB queries.',
-    promptSnippet: 'Add Redis caching for expensive DB queries using @upstash/redis. Cache for 60 seconds with stale-while-revalidate.',
+    promptSnippet: cacheSnippet,
     category: 'perf',
   },
   {
     id: 'perf-pagination',
     text: 'Pagination / infinite scroll',
     tip: 'Never load 1000 items at once. Use cursor-based pagination for large lists.',
-    promptSnippet: 'Implement cursor-based pagination on all list endpoints. Use react-intersection-observer for infinite scroll on the frontend.',
+    promptSnippet: () => 'Implement cursor-based pagination on all list endpoints — return a nextCursor in each response. On the frontend, trigger the next page fetch when the last item scrolls into view using an IntersectionObserver.',
     category: 'perf',
   },
 ];
@@ -256,7 +370,7 @@ function buildBasePrompt(answers: AnswerMap, checked: Set<string>): string {
   const extras: string[] = [];
   ALL_GROUPS.forEach(g => {
     g.items.forEach(item => {
-      if (checked.has(item.id)) extras.push(`- ${item.promptSnippet}`);
+      if (checked.has(item.id)) extras.push(`- ${item.promptSnippet(answers)}`);
     });
   });
 
@@ -285,7 +399,7 @@ ${desc || '(not provided)'}
    - One public API endpoint example
    - .env.example with all required variables
 4. Call out any production gotchas for this stack
-   (e.g. Vercel timeout limits, connection pooling, cold starts)${extras.length ? `
+   (e.g. serverless function timeouts, connection pooling, cold starts)${extras.length ? `
 
 ── ADDITIONAL REQUIREMENTS ──────────────────────────────
 ${extras.join('\n')}` : ''}
@@ -300,11 +414,13 @@ function ChecklistGroup({
   group,
   checked,
   onToggle,
+  answers,
 }: {
   key?: React.Key;
   group: typeof ALL_GROUPS[0];
   checked: Set<string>;
   onToggle: (id: string) => void;
+  answers: AnswerMap;
 }) {
   const [open, setOpen] = useState(false);
   const Icon = group.icon;
@@ -355,7 +471,7 @@ function ChecklistGroup({
                   <span className="text-sm text-gray-500 leading-relaxed">{item.tip}</span>
                   {isChecked && (
                     <span className="text-xs font-mono text-blue-700 bg-blue-50 border border-blue-100 px-2 py-1 rounded leading-relaxed mt-1">
-                      → will add to prompt: {item.promptSnippet.slice(0, 80)}…
+                      → will add to prompt: {item.promptSnippet(answers).slice(0, 80)}…
                     </span>
                   )}
                 </div>
@@ -476,6 +592,7 @@ export default function Vibecoder({ answers, handleCopyClipboard, onGoToBuilder 
               group={group}
               checked={checked}
               onToggle={toggleItem}
+              answers={answers}
             />
           ))}
         </div>

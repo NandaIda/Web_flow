@@ -279,6 +279,31 @@ function QuestionPanel({
 
 // ─── RESULTS PANEL ────────────────────────────────────────────────────────────
 
+// Jargon replacements for plain-English mode
+function simplifyPrompt(text: string): string {
+  return text
+    .replace(/cursor-based pagination/gi, 'load-more-as-you-scroll')
+    .replace(/PgBouncer/gi, 'database connection manager')
+    .replace(/pgvector/gi, 'AI search index')
+    .replace(/SSR/gi, 'server-rendered pages')
+    .replace(/SSG/gi, 'pre-built static pages')
+    .replace(/CSR/gi, 'browser-rendered pages')
+    .replace(/hydration/gi, 'page initialization')
+    .replace(/serverless functions?/gi, 'cloud functions')
+    .replace(/edge functions?/gi, 'fast cloud functions')
+    .replace(/connection pooling/gi, 'database connection reuse')
+    .replace(/cold starts?/gi, 'startup delay')
+    .replace(/JWT tokens?/gi, 'login tokens')
+    .replace(/OAuth/gi, 'social login (Google, GitHub, etc.)')
+    .replace(/ACID compliance/gi, 'reliable data saving')
+    .replace(/boilerplate/gi, 'starter code')
+    .replace(/route handler/gi, 'API endpoint')
+    .replace(/middleware/gi, 'request handler')
+    .replace(/ORM/gi, 'database query tool')
+    .replace(/\(e\.g\. [^)]+\)/gi, '') // strip "e.g. X" asides
+    .replace(/\(e\.g[^)]+\)/gi, '');
+}
+
 function ResultsPanel({
   answers,
   history,
@@ -295,6 +320,7 @@ function ResultsPanel({
   handleCopyClipboard: (text: string) => void;
 }) {
   const [copied, setCopied] = useState<'prompt' | 'commands' | null>(null);
+  const [plainEnglish, setPlainEnglish] = useState(true);
 
   const projectName = (answers['project_name'] as string) || 'My App';
   const projectDesc = (answers['project_description'] as string) || '';
@@ -322,7 +348,7 @@ function ResultsPanel({
   const frontendLabel = frontend ? label('frontend_choice', frontend) : '–';
   const backendLabel = backend ? label('backend_choice', backend) : '–';
   const stylingLabel = styling ? label('styling_choice', styling) : '–';
-  const authLabel = auth === 'supabase_auth' ? 'Supabase Auth' : auth ? label('auth_strategy', auth) : '–';
+  const authLabel = auth ? label('auth_strategy', auth) : '–';
   const authLibLabel = authLib ? label('auth_library', authLib) : '–';
   const providerList = Array.isArray(providers) ? providers.join(', ') : '';
   const aiLabel = ai ? label('ai_integration', ai) : '–';
@@ -360,11 +386,12 @@ function ResultsPanel({
     }
 
     // DB deps
-    if (db === 'supabase' || db === 'supabase_hosting') {
+    if (db === 'supabase') {
       if (!isPython && !isGo) {
-        lines.push(`\n# ── Supabase client ─────────────────────────────────────`);
+        lines.push(`\n# ── Managed Postgres + BaaS client ─────────────────────`);
         lines.push(`npm install @supabase/supabase-js`);
         if (isNext) lines.push(`npm install @supabase/ssr`);
+        if (isSvelte) lines.push(`npm install @supabase/ssr`);
       }
     } else if (db === 'postgres_self' || db === 'neon') {
       if (!isPython && !isGo) {
@@ -373,60 +400,116 @@ function ResultsPanel({
         lines.push(`npx prisma init --datasource-provider postgresql`);
       }
     } else if (db === 'planetscale') {
-      lines.push(`\n# ── PlanetScale / Drizzle ───────────────────────────────`);
-      lines.push(`npm install drizzle-orm @planetscale/database`);
-      lines.push(`npm install -D drizzle-kit`);
+      if (!isPython && !isGo) {
+        lines.push(`\n# ── Serverless MySQL / Drizzle ──────────────────────────`);
+        lines.push(`npm install drizzle-orm @planetscale/database`);
+        lines.push(`npm install -D drizzle-kit`);
+      }
+    } else if (db === 'turso') {
+      if (!isPython && !isGo) {
+        lines.push(`\n# ── Edge SQLite / Turso ─────────────────────────────────`);
+        lines.push(`npm install @libsql/client drizzle-orm`);
+        lines.push(`npm install -D drizzle-kit`);
+      }
     } else if (db === 'mongodb_atlas') {
       if (!isPython && !isGo) {
-        lines.push(`\n# ── MongoDB / Mongoose ──────────────────────────────────`);
+        lines.push(`\n# ── Managed Document DB / Mongoose ─────────────────────`);
         lines.push(`npm install mongoose`);
+      } else if (isPython) {
+        lines.push(`\n# ── Managed Document DB / Motor ────────────────────────`);
+        lines.push(`pip install motor`);
       }
     }
 
     // Auth deps
     if (auth !== 'supabase_auth' && auth !== 'no_auth') {
-      if (authLib === 'nextauth' && isNext) {
+      if (authLib === 'nextauth') {
         lines.push(`\n# ── Auth.js ─────────────────────────────────────────────`);
-        lines.push(`npm install next-auth@beta @auth/prisma-adapter`);
+        if (isNext) {
+          lines.push(`npm install next-auth@beta @auth/prisma-adapter`);
+        } else if (isSvelte) {
+          lines.push(`npm install @auth/sveltekit`);
+        } else {
+          lines.push(`npm install @auth/core`);
+        }
       } else if (authLib === 'clerk') {
-        lines.push(`\n# ── Clerk ───────────────────────────────────────────────`);
-        lines.push(`npm install @clerk/nextjs`);
-      } else if (authLib === 'lucia') {
-        lines.push(`\n# ── Lucia Auth ──────────────────────────────────────────`);
-        lines.push(`npm install lucia oslo`);
+        lines.push(`\n# ── Hosted Auth Service ─────────────────────────────────`);
+        if (isNext) {
+          lines.push(`npm install @clerk/nextjs`);
+        } else if (isReactVite) {
+          lines.push(`npm install @clerk/clerk-react`);
+        } else {
+          lines.push(`# No official SDK for this frontend — use BetterAuth instead`);
+        }
+      } else if (authLib === 'better_auth') {
+        lines.push(`\n# ── BetterAuth ──────────────────────────────────────────`);
+        lines.push(`npm install better-auth`);
+      } else if (authLib === 'supabase_auth_lib') {
+        lines.push(`\n# ── BaaS Auth SDK ───────────────────────────────────────`);
+        lines.push(`npm install @supabase/supabase-js`);
+        if (isNext) lines.push(`npm install @supabase/ssr`);
+        if (isSvelte) lines.push(`npm install @supabase/ssr`);
+      } else if (authLib === 'custom_jwt') {
+        lines.push(`\n# ── Custom JWT ──────────────────────────────────────────`);
+        lines.push(`npm install jose`);
       }
     }
 
     // Styling
-    if (styling === 'shadcn' && isNext) {
-      lines.push(`\n# ── shadcn/ui ───────────────────────────────────────────`);
-      lines.push(`npx shadcn@latest init`);
-      lines.push(`npx shadcn@latest add button card input label`);
+    if (styling === 'shadcn') {
+      if (isNext || isReactVite) {
+        lines.push(`\n# ── shadcn/ui ───────────────────────────────────────────`);
+        lines.push(`npx shadcn@latest init`);
+        lines.push(`npx shadcn@latest add button card input label`);
+      }
+    } else if (styling === 'shadcn_svelte') {
+      lines.push(`\n# ── shadcn-svelte ───────────────────────────────────────`);
+      lines.push(`npx shadcn-svelte@latest init`);
+      lines.push(`npx shadcn-svelte@latest add button card input`);
+    } else if (styling === 'nuxt_ui') {
+      lines.push(`\n# ── Nuxt UI ─────────────────────────────────────────────`);
+      lines.push(`npm install @nuxt/ui`);
+      lines.push(`# Add @nuxt/ui to modules in nuxt.config.ts`);
     } else if (styling === 'tailwind' && isReactVite) {
-      lines.push(`\n# ── Tailwind (Vite) ─────────────────────────────────────`);
+      lines.push(`\n# ── Tailwind CSS (Vite) ─────────────────────────────────`);
       lines.push(`npm install -D tailwindcss postcss autoprefixer`);
       lines.push(`npx tailwindcss init -p`);
     }
 
     // AI
     if (ai === 'llm_chat' || ai === 'rag_vector' || ai === 'agents') {
-      lines.push(`\n# ── AI SDK ──────────────────────────────────────────────`);
-      lines.push(`npm install ai @ai-sdk/openai`);
-      if (ai === 'rag_vector') {
-        lines.push(`# Add pgvector extension to your Postgres DB:`);
-        lines.push(`# CREATE EXTENSION IF NOT EXISTS vector;`);
+      if (isPython) {
+        lines.push(`\n# ── AI (Python) ─────────────────────────────────────────`);
+        lines.push(`pip install openai langchain`);
+        if (ai === 'rag_vector') lines.push(`pip install langchain-community chromadb`);
+        if (ai === 'agents')     lines.push(`pip install langgraph`);
+      } else {
+        lines.push(`\n# ── AI SDK ──────────────────────────────────────────────`);
+        lines.push(`npm install ai @ai-sdk/openai`);
+        if (ai === 'rag_vector') {
+          lines.push(`# Add pgvector to your Postgres DB:`);
+          lines.push(`# CREATE EXTENSION IF NOT EXISTS vector;`);
+        }
       }
     }
 
     // Payments
     if (payments === 'stripe') {
-      lines.push(`\n# ── Stripe ──────────────────────────────────────────────`);
-      lines.push(`npm install stripe @stripe/stripe-js`);
+      lines.push(`\n# ── Payment Gateway ─────────────────────────────────────`);
+      if (isPython) {
+        lines.push(`pip install stripe`);
+      } else {
+        lines.push(`npm install stripe`);
+        if (isNext || isReactVite) lines.push(`npm install @stripe/stripe-js`);
+      }
+    } else if (payments === 'lemon_squeezy') {
+      lines.push(`\n# ── Merchant of Record ──────────────────────────────────`);
+      if (!isPython && !isGo) lines.push(`npm install @lemonsqueezy/lemonsqueezy.js`);
     }
 
     lines.push(`\n# ── Environment variables ───────────────────────────────`);
     lines.push(`cp .env.example .env.local`);
-    lines.push(`# Fill in your keys: DATABASE_URL, NEXTAUTH_SECRET, etc.`);
+    lines.push(`# Fill in your keys: DATABASE_URL, AUTH_SECRET, etc.`);
     lines.push(`\n# ── Start dev server ────────────────────────────────────`);
     if (isPython) {
       lines.push(`uvicorn main:app --reload`);
@@ -471,11 +554,12 @@ Your task:
    - One example public API endpoint
    - Environment variable template (.env.example)
 
-Be specific and production-aware. Call out any gotchas for the chosen stack (e.g. Vercel function timeout limits, connection pooling requirements, etc.). Use TypeScript where applicable.`;
+Be specific and production-aware. Call out any gotchas for the chosen stack (e.g. serverless function timeout limits, connection pooling requirements, cold start latency). Use TypeScript where applicable.`;
   };
 
   const copy = (type: 'prompt' | 'commands') => {
-    const text = type === 'prompt' ? getAIPrompt() : getSetupCommands();
+    const raw = type === 'prompt' ? getAIPrompt() : getSetupCommands();
+    const text = type === 'prompt' && plainEnglish ? simplifyPrompt(raw) : raw;
     navigator.clipboard.writeText(text);
     handleCopyClipboard(text);
     setCopied(type);
@@ -541,21 +625,35 @@ Be specific and production-aware. Call out any gotchas for the chosen stack (e.g
           <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center gap-1.5">
             <FileCode2 className="h-4 w-4 text-blue-400" /> AI Prompt — paste into Cursor / Claude / ChatGPT
           </h3>
-          <button
-            onClick={() => copy('prompt')}
-            className="flex items-center gap-1.5 text-sm bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded transition-all"
-          >
-            {copied === 'prompt' ? (
-              <><Check className="h-4 w-4" /> Copied!</>
-            ) : (
-              <><Copy className="h-4 w-4" /> Copy Prompt</>
-            )}
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* plain-English toggle */}
+            <button
+              onClick={() => setPlainEnglish(v => !v)}
+              className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded border transition-all ${
+                plainEnglish
+                  ? 'bg-emerald-900 border-emerald-600 text-emerald-300'
+                  : 'bg-zinc-800 border-zinc-600 text-gray-400 hover:border-zinc-500'
+              }`}
+              title={plainEnglish ? 'Switch to technical mode' : 'Switch to plain English mode'}
+            >
+              {plainEnglish ? '📖 Plain English' : '⚙️ Technical'}
+            </button>
+            <button
+              onClick={() => copy('prompt')}
+              className="flex items-center gap-1.5 text-sm bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded transition-all"
+            >
+              {copied === 'prompt' ? (
+                <><Check className="h-4 w-4" /> Copied!</>
+              ) : (
+                <><Copy className="h-4 w-4" /> Copy Prompt</>
+              )}
+            </button>
+          </div>
         </div>
         <textarea
           readOnly
           className="w-full h-52 bg-[#18181B] text-emerald-300 p-4 text-sm font-mono leading-relaxed rounded border border-zinc-800 focus:outline-none resize-none select-all"
-          value={getAIPrompt()}
+          value={plainEnglish ? simplifyPrompt(getAIPrompt()) : getAIPrompt()}
         />
         <p className="text-sm text-gray-500 italic leading-relaxed">
           💡 Copy this and paste into Cursor Composer, Claude, or ChatGPT to scaffold your project. Then use the <strong className="text-gray-400">Vibecoder</strong> tab to add feature improvements.
@@ -832,9 +930,9 @@ const ECOSYSTEM_LAYERS = [
   { label: 'Styling', color: 'bg-pink-100 text-pink-800', tools: ['Tailwind', 'shadcn/ui', 'Bootstrap'] },
   { label: 'API', color: 'bg-green-100 text-green-800', tools: ['REST', 'GraphQL', 'tRPC', 'WebSocket'] },
   { label: 'Backend', color: 'bg-emerald-100 text-emerald-800', tools: ['Express', 'FastAPI', 'Django', 'Gin', 'Axum'] },
-  { label: 'Database', color: 'bg-purple-100 text-purple-800', tools: ['PostgreSQL', 'MySQL', 'MongoDB', 'SQLite', 'Supabase'] },
-  { label: 'Auth', color: 'bg-red-100 text-red-800', tools: ['Auth.js', 'Clerk', 'Supabase Auth', 'JWT'] },
-  { label: 'Deploy', color: 'bg-orange-100 text-orange-800', tools: ['Vercel', 'Railway', 'VPS', 'AWS'] },
+  { label: 'Database', color: 'bg-purple-100 text-purple-800', tools: ['PostgreSQL', 'MySQL', 'MongoDB', 'SQLite', 'Managed BaaS DB'] },
+  { label: 'Auth', color: 'bg-red-100 text-red-800', tools: ['Auth.js', 'Hosted Auth Service', 'BaaS Auth', 'JWT'] },
+  { label: 'Deploy', color: 'bg-orange-100 text-orange-800', tools: ['Serverless Edge', 'Container PaaS', 'VPS', 'Enterprise Cloud'] },
   { label: 'Process', color: 'bg-yellow-100 text-yellow-800', tools: ['PM2', 'systemd', 'Docker', 'Gunicorn'] },
   { label: 'Proxy', color: 'bg-cyan-100 text-cyan-800', tools: ['Nginx', 'Caddy', 'Cloudflare'] },
   { label: 'Monitor', color: 'bg-gray-100 text-gray-800', tools: ['Sentry', 'Grafana', 'PM2 logs'] },
@@ -1040,6 +1138,186 @@ function HistoryBreadcrumb({
   );
 }
 
+// ─── RECOMMENDED STACKS ──────────────────────────────────────────────────────
+// Pre-filled AnswerMaps for common project archetypes.
+// Labels shown to the user are plain English — they map to answer IDs internally.
+
+interface StackPreset {
+  id: string;
+  emoji: string;
+  title: string;
+  example: string;
+  why: string;
+  answers: AnswerMap;
+}
+
+const STACK_PRESETS: StackPreset[] = [
+  {
+    id: 'saas_mvp',
+    emoji: '🏢',
+    title: 'SaaS / Web App',
+    example: 'e.g. project manager, CRM, invoicing tool',
+    why: 'Next.js + Supabase + Vercel is the fastest path to a working SaaS — one platform for database and auth, push-to-deploy hosting.',
+    answers: {
+      app_type: 'saas',
+      deploy_target: 'vercel',
+      db_for_vercel: 'supabase',
+      auth_supabase: 'supabase_auth_yes',
+      email_verification: 'verify_required',
+      frontend_choice: 'nextjs',
+      backend_choice: 'nextjs_api',
+      styling_choice: 'shadcn',
+      ai_integration: 'no_ai',
+      payments: 'stripe',
+    },
+  },
+  {
+    id: 'stock_screener',
+    emoji: '📈',
+    title: 'Dashboard / Data Tool',
+    example: 'e.g. stock screener, analytics panel, internal admin',
+    why: 'React Vite + Express + Railway gives you a fast dashboard frontend and a flexible backend for data fetching — no SEO needed for internal tools.',
+    answers: {
+      app_type: 'dashboard',
+      deploy_target: 'railway',
+      db_general: 'postgres_self',
+      auth_strategy: 'oauth_only',
+      auth_providers: ['google'],
+      auth_library: 'better_auth',
+      frontend_choice: 'react_vite',
+      backend_choice: 'express_node',
+      styling_choice: 'shadcn',
+      ai_integration: 'no_ai',
+      payments: 'no_payments',
+    },
+  },
+  {
+    id: 'ai_chat',
+    emoji: '🤖',
+    title: 'AI-powered App',
+    example: 'e.g. AI chat bot, document Q&A, writing assistant',
+    why: 'Next.js + Neon + Railway keeps the AI streaming responses alive without serverless timeouts. Neon Postgres stores conversation history.',
+    answers: {
+      app_type: 'ai_app',
+      deploy_target: 'railway',
+      db_general: 'supabase',
+      auth_strategy: 'email_plus_oauth',
+      auth_providers: ['google'],
+      auth_library: 'better_auth',
+      frontend_choice: 'nextjs',
+      backend_choice: 'express_node',
+      styling_choice: 'shadcn',
+      ai_integration: 'llm_chat',
+      payments: 'no_payments',
+    },
+  },
+  {
+    id: 'ecommerce',
+    emoji: '🛍️',
+    title: 'Online Store / Marketplace',
+    example: 'e.g. product shop, digital downloads, subscription box',
+    why: 'Next.js handles SEO-critical product pages; Supabase stores products and orders; Stripe manages payments without touching card data.',
+    answers: {
+      app_type: 'ecommerce',
+      deploy_target: 'vercel',
+      db_for_vercel: 'supabase',
+      auth_supabase: 'supabase_auth_yes',
+      email_verification: 'verify_required',
+      frontend_choice: 'nextjs',
+      backend_choice: 'nextjs_api',
+      styling_choice: 'shadcn',
+      ai_integration: 'no_ai',
+      payments: 'stripe',
+    },
+  },
+  {
+    id: 'landing',
+    emoji: '📄',
+    title: 'Landing Page / Blog / Portfolio',
+    example: 'e.g. product landing, personal site, newsletter',
+    why: 'Next.js static pages load instantly and rank in Google. Vercel hosts them for free. No database needed.',
+    answers: {
+      app_type: 'landing',
+      deploy_target: 'vercel',
+      frontend_choice: 'nextjs',
+      styling_choice: 'tailwind',
+    },
+  },
+  {
+    id: 'realtime',
+    emoji: '⚡',
+    title: 'Realtime / Collaborative App',
+    example: 'e.g. live chat, multiplayer, collaborative editor',
+    why: 'Express on Railway keeps live connections open. Serverless platforms kill WebSocket connections — a persistent server is required here.',
+    answers: {
+      app_type: 'realtime',
+      deploy_target: 'railway',
+      db_general: 'postgres_self',
+      auth_strategy: 'email_plus_oauth',
+      auth_providers: ['google'],
+      auth_library: 'better_auth',
+      frontend_choice: 'react_vite',
+      backend_choice: 'express_node',
+      styling_choice: 'shadcn',
+      ai_integration: 'no_ai',
+      payments: 'no_payments',
+    },
+  },
+];
+
+// ─── MODE SELECTOR SCREEN ────────────────────────────────────────────────────
+
+function ModeSelector({ onSelectPreset, onChooseManually }: {
+  onSelectPreset: (preset: StackPreset) => void;
+  onChooseManually: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-8 max-w-3xl mx-auto">
+      <div className="text-center flex flex-col gap-2">
+        <h1 className="text-3xl font-black text-zinc-900 leading-tight">What are you building?</h1>
+        <p className="text-base text-gray-500 leading-relaxed">
+          Pick your project type and we'll recommend the right tools — then you can tweak anything.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {STACK_PRESETS.map(preset => (
+          <button
+            key={preset.id}
+            onClick={() => onSelectPreset(preset)}
+            className="text-left p-5 bg-white border-2 border-[#D4D4D8] rounded-lg hover:border-blue-500 hover:shadow-md transition-all group flex flex-col gap-2"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{preset.emoji}</span>
+              <div>
+                <div className="font-black text-base text-zinc-900 group-hover:text-blue-700 transition-colors">
+                  {preset.title}
+                </div>
+                <div className="text-xs text-gray-400 mt-0.5">{preset.example}</div>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-2 mt-1">
+              {preset.why}
+            </p>
+            <div className="flex items-center gap-1 text-xs font-bold text-blue-600 group-hover:gap-2 transition-all">
+              Use this stack <ArrowRight className="h-3 w-3" />
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="text-center">
+        <button
+          onClick={onChooseManually}
+          className="text-sm text-gray-400 hover:text-gray-700 underline underline-offset-2 transition-colors"
+        >
+          I'd rather answer all questions myself →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 interface ConversationalFlowProps {
@@ -1063,6 +1341,12 @@ function saveState(state: { history: HistoryEntry[]; answers: AnswerMap; current
 
 export default function ConversationalFlow({ handleCopyClipboard, onComplete, onViewDiagram }: ConversationalFlowProps) {
   const saved = loadState();
+  // 'select' = mode picker screen; 'wizard' = manual question flow; 'done' handled via done state
+  const [mode, setMode] = useState<'select' | 'wizard'>(() => {
+    // If there's a saved session in progress, skip the mode screen
+    if (saved && (saved.done || saved.history.length > 0)) return 'wizard';
+    return 'select';
+  });
   const [history, setHistory] = useState<HistoryEntry[]>(saved?.history ?? []);
   const [currentQuestionId, setCurrentQuestionId] = useState<string>(saved?.currentQuestionId ?? FLOW_START);
   const [answers, setAnswers] = useState<AnswerMap>(saved?.answers ?? {});
@@ -1129,12 +1413,46 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
     setAnswers({});
     setCurrentQuestionId(FLOW_START);
     setDone(false);
+    setMode('select');
     try { localStorage.removeItem(LS_KEY); } catch {}
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleSelectPreset = (preset: StackPreset) => {
+    // Build history by walking the flow and replaying the preset answers
+    const presetAnswers = preset.answers;
+    const builtHistory: HistoryEntry[] = [];
+    let qId: string | null = FLOW_START;
+    const visited = new Set<string>();
+
+    while (qId && !visited.has(qId)) {
+      visited.add(qId);
+      const answer = presetAnswers[qId];
+      if (answer === undefined) break;
+      builtHistory.push({ questionId: qId, answer });
+      qId = getNextQuestion(qId, answer, presetAnswers);
+    }
+
+    setAnswers(presetAnswers);
+    setHistory(builtHistory);
+    setDone(true);
+    setMode('wizard');
+    onComplete?.(presetAnswers);
+  };
+
   const currentQuestion = FLOW_QUESTIONS[currentQuestionId];
-  const progress = done ? 100 : Math.round((history.length / 14) * 100); // ~14 questions max
+  // Estimate remaining by counting reachable questions from the current point
+  const totalEstimate = history.length + (done ? 0 : Object.keys(FLOW_QUESTIONS).length / 3);
+  const progress = done ? 100 : Math.min(95, Math.round((history.length / Math.max(history.length + 3, 10)) * 100));
+
+  if (mode === 'select') {
+    return (
+      <ModeSelector
+        onSelectPreset={handleSelectPreset}
+        onChooseManually={() => setMode('wizard')}
+      />
+    );
+  }
 
   if (done) {
     return (
@@ -1158,7 +1476,15 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
         {/* progress bar */}
         <div className="bg-white border border-[#D4D4D8] rounded p-4 flex flex-col gap-2 shadow-sm">
           <div className="flex items-center justify-between text-xs font-mono text-gray-500">
-            <span className="font-bold text-gray-700 uppercase tracking-widest">Stack Builder</span>
+            <div className="flex items-center gap-3">
+              <span className="font-bold text-gray-700 uppercase tracking-widest">Stack Builder</span>
+              <button
+                onClick={() => setMode('select')}
+                className="text-blue-500 hover:text-blue-700 font-normal normal-case tracking-normal underline underline-offset-2 transition-colors"
+              >
+                ← change project type
+              </button>
+            </div>
             <span>{history.length} answered · ~{Math.max(0, 12 - history.length)} left</span>
           </div>
           <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">

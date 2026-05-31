@@ -127,16 +127,16 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
 
   deploy_target: {
     id: 'deploy_target',
-    question: 'Where do you want to deploy your app?',
-    hint: 'Your hosting choice shapes which database, auth, and backend options make sense. Serverless = less ops work; VPS = full control.',
+    question: 'Where will your app live on the internet?',
+    hint: 'This is your hosting choice — it affects cost, effort to set up, and what your app can do.',
     type: 'single',
     options: [
       {
         id: 'vercel',
-        label: 'Serverless Edge Hosting',
+        label: 'Push-to-deploy cloud (zero server config)',
         icon: '▲',
-        desc: 'Git-push deploys on a global serverless edge network — zero server config, auto HTTPS, instant CDN (e.g. Vercel, Netlify)',
-        badge: 'Best for frontend-heavy apps',
+        desc: 'Connect your code repo and it deploys automatically — HTTPS, global fast loading, and scaling are all handled for you (e.g. Vercel, Netlify)',
+        badge: 'Best for most web apps',
         advantages: ['Free tier for small projects', 'Auto HTTPS + CDN built-in', 'Zero server config'],
         limits: [
           'Serverless functions timeout at 10–30s depending on plan',
@@ -151,10 +151,10 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'railway',
-        label: 'Container PaaS',
+        label: 'Managed cloud server (always running)',
         icon: '🚂',
-        desc: 'Managed platform that runs your full server 24/7 in a container — no infra config (e.g. Railway, Render, Fly.io)',
-        badge: 'Best for full-stack + APIs',
+        desc: 'A managed platform runs your server 24/7 — no server config needed, supports live chat and background tasks (e.g. Railway, Render, Fly.io)',
+        badge: 'Best for full-stack + realtime',
         advantages: ['Supports WebSockets and long-running processes', 'No server config needed', 'Many include built-in DB provisioning'],
         limits: [
           'Some free tiers sleep after inactivity',
@@ -167,9 +167,9 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'vps',
-        label: 'Self-Managed VPS',
+        label: 'Your own Linux server (full control)',
         icon: '🖥️',
-        desc: 'Your own Linux server — you install everything, full root access (e.g. DigitalOcean, Hetzner, Linode)',
+        desc: 'Rent a raw server and set it up yourself — cheapest long-term, total flexibility, but you handle security and updates (e.g. DigitalOcean, Hetzner, Linode)',
         advantages: ['Cheapest long-term (~$4–6/mo)', 'Full control — no platform limits', 'WebSockets, cron, any port'],
         limits: [
           'You set up the web server, SSL, and firewall yourself',
@@ -183,10 +183,10 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'supabase_hosting',
-        label: 'Backend-as-a-Service (BaaS)',
+        label: 'All-in-one platform (database + auth built in)',
         icon: '🟢',
-        desc: 'Managed platform with DB + auth + storage built in — no backend server to run (e.g. Supabase, Firebase, Appwrite)',
-        badge: 'Best for solo devs / rapid MVP',
+        desc: 'A platform that gives you database, login, and file storage in one dashboard — you just build the frontend (e.g. Supabase, Firebase, Appwrite)',
+        badge: 'Fastest to launch',
         advantages: ['No backend server to manage', 'DB + Auth + Storage in one dashboard', 'Free tiers available'],
         limits: [
           'Free tiers typically cap at ~500MB DB and 50k monthly active users',
@@ -200,9 +200,9 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'aws',
-        label: 'Enterprise Cloud',
+        label: 'Enterprise cloud (AWS / Google Cloud / Azure)',
         icon: '☁️',
-        desc: 'Hyperscaler infrastructure with compute, storage, databases, and networking at any scale (e.g. AWS, GCP, Azure)',
+        desc: 'The "big three" cloud providers — every service imaginable, scales to millions of users, but steep learning curve and complex billing (e.g. AWS, GCP, Azure)',
         advantages: ['Virtually unlimited scale', 'Every service imaginable', 'Best for enterprise compliance'],
         limits: [
           'Steep learning curve — IAM and networking alone take weeks',
@@ -227,8 +227,8 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
 
   db_for_vercel: {
     id: 'db_for_vercel',
-    question: 'Which database will you use? (serverless-compatible options)',
-    hint: 'Serverless platforms need databases that support HTTP connections or connection pooling — standard TCP connections can exhaust limits.',
+    question: 'Where will your app store its data?',
+    hint: 'Every app that saves user accounts, content, or settings needs a database. The push-to-deploy platform you chose works best with hosted database services.',
     type: 'single',
     options: [
       {
@@ -297,8 +297,8 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
 
   db_general: {
     id: 'db_general',
-    question: 'Which database will you use?',
-    hint: 'On a container PaaS or VPS, you can run the DB yourself or point to a managed service.',
+    question: 'Where will your app store its data?',
+    hint: 'Every app that saves user accounts, content, or settings needs a database. With your chosen server setup, you can run one yourself or use a hosted service.',
     type: 'single',
     options: [
       {
@@ -530,15 +530,15 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
 
   auth_library: {
     id: 'auth_library',
-    question: 'Which auth library or service will you use?',
-    hint: 'Pick the library that handles session management, tokens, and OAuth callbacks for your app.',
+    question: 'Which tool will handle login for your app?',
+    hint: 'This is the code that checks passwords, manages sessions ("stay logged in"), and connects to Google/GitHub login.',
     type: 'single',
     options: [
       {
         id: 'nextauth',
-        label: 'Auth.js / NextAuth.js',
+        label: 'Auth.js — open-source, works with most frameworks',
         icon: '🔒',
-        desc: 'The standard for Next.js apps — supports 50+ OAuth providers + credentials',
+        desc: 'The most widely used login library — free, open-source, supports 50+ login providers (Google, GitHub, etc.) and email+password (e.g. Auth.js / NextAuth.js)',
         badge: 'Recommended for Next.js',
         advantages: ['Huge community', 'Works with any DB via adapters', 'Handles sessions + JWT'],
         limits: ['Config can be complex for custom flows', 'v5 still in beta for some adapters'],
@@ -550,11 +550,11 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'clerk',
-        label: 'Hosted Auth Service',
+        label: 'Clerk — plug-in login UI, no code to write',
         icon: '🧑‍💼',
-        desc: 'Fully managed auth with pre-built UI components, MFA, and SSO — drop-in, no auth code to write (e.g. Clerk)',
-        advantages: ['Pre-built login/signup UI', 'MFA, SSO out of the box', 'Generous free tier'],
-        limits: ['Monthly cost once you scale past the free tier', 'Less flexible for deeply custom auth flows'],
+        desc: 'A paid service that gives you a complete login system — pre-built sign-in/sign-up screens, user management dashboard, and multi-factor auth out of the box (e.g. Clerk)',
+        advantages: ['Login screens and user management are already built — zero auth code', 'Supports 2FA, social login, magic links with no extra setup', 'Generous free tier for early projects'],
+        limits: ['Monthly fee once you grow past the free tier', 'Less flexible if you need deeply custom login flows'],
         compat: [
           { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['nextjs', 'react_vite'] }], reason: 'Clerk\'s React SDK and pre-built components are React-first' },
           { signal: 'incompatible', when: [{ key: 'frontend_choice', values: ['sveltekit', 'vue_nuxt'] }], reason: 'Clerk has no official Svelte or Vue SDK — integration is manual and unsupported' },
@@ -562,11 +562,11 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'better_auth',
-        label: 'BetterAuth',
+        label: 'BetterAuth — modern open-source login library',
         icon: '🏮',
-        desc: 'Modern TypeScript auth library — session-based with plugin system for OAuth, 2FA, and more',
-        advantages: ['Full control — no magic', 'Framework-agnostic', 'Actively maintained (Lucia successor)'],
-        limits: ['More code to write than Clerk', 'Smaller community than Auth.js'],
+        desc: 'A newer open-source login library that works with any framework — full control over how login behaves, with a plugin system for 2FA, OAuth, and more (e.g. BetterAuth)',
+        advantages: ['Works with any framework — not tied to React or Next.js', 'Full control over login flows', 'Actively maintained'],
+        limits: ['More code to write than Clerk — you build the login screens', 'Smaller community than Auth.js'],
         compat: [
           { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['sveltekit', 'vue_nuxt'] }], reason: 'Framework-agnostic — works equally well with Svelte and Vue' },
           { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['nextjs', 'react_vite'] }], reason: 'Works with React too — good if you want full control over auth logic' },
@@ -574,11 +574,11 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'supabase_auth_lib',
-        label: 'BaaS Auth SDK',
+        label: 'Platform auth SDK — use your database platform\'s login',
         icon: '🟢',
-        desc: 'Use your BaaS platform\'s auth SDK to manage sessions — works even outside their hosting (e.g. Supabase Auth SDK)',
-        advantages: ['Works with any hosting provider', 'Free tier included with the BaaS plan'],
-        limits: ['Couples your auth layer to your BaaS provider'],
+        desc: 'Use the login system built into your database platform — everything stays in one dashboard, no extra service needed (e.g. Supabase Auth)',
+        advantages: ['Everything in one dashboard — database and login together', 'Included in your existing plan at no extra cost'],
+        limits: ['Ties your login system to your database provider — harder to switch later'],
         compat: [
           { signal: 'recommended', when: [{ key: 'db_for_vercel', values: ['supabase'] }, { key: 'db_general', values: ['supabase'] }], reason: 'Already using a managed Postgres + BaaS — using the same platform\'s auth keeps everything in one dashboard' },
           { signal: 'incompatible', when: [{ key: 'db_for_vercel', values: ['neon', 'planetscale', 'turso', 'mongodb_atlas'] }], reason: 'BaaS Auth SDK ties you to one provider even though your DB is elsewhere — use BetterAuth or Auth.js to stay DB-agnostic' },
@@ -586,11 +586,11 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'custom_jwt',
-        label: 'Custom JWT (manual)',
+        label: 'Build it yourself (advanced — not recommended for most)',
         icon: '🔧',
-        desc: 'Hand-write JWT sign/verify logic with jsonwebtoken or jose',
-        advantages: ['Zero vendor dependency', 'Deepest control'],
-        limits: ['Easy to introduce vulnerabilities', 'You manage token rotation and revocation'],
+        desc: 'Write your own login system from scratch — maximum flexibility, but security is entirely on you. Only choose this if you have a specific reason not to use the options above.',
+        advantages: ['No dependency on any third-party service', 'Deepest possible control over login logic'],
+        limits: ['Easy to introduce security vulnerabilities if done wrong', 'You must handle session expiry, password resets, and token security yourself'],
         compat: [
           { signal: 'incompatible', when: [{ key: 'app_type', values: ['saas', 'ecommerce'] }], reason: 'Custom JWT is high-risk for production apps — use a battle-tested library instead' },
         ]
@@ -603,16 +603,16 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
 
   frontend_choice: {
     id: 'frontend_choice',
-    question: 'What is your frontend framework?',
-    hint: 'Your hosting choice may influence this — serverless platforms pair well with Next.js/SvelteKit, while a VPS lets you run any framework.',
+    question: 'What will you use to build the visual part of your app?',
+    hint: 'This is your "frontend framework" — the tool that creates what users see and click. Pick based on your project, not what sounds most impressive.',
     type: 'single',
     options: [
       {
         id: 'nextjs',
-        label: 'Next.js (React)',
+        label: 'Next.js — React with built-in backend',
         icon: '▲',
-        desc: 'Full-stack React framework with SSR, SSG, API routes, and edge functions',
-        badge: 'Most popular for SaaS / full-stack',
+        desc: 'The most popular choice for web apps — handles both your pages and your server logic in one project (e.g. SaaS, e-commerce, marketing sites)',
+        badge: 'Most popular — great default choice',
         advantages: ['App Router = server components = faster pages', 'API routes = no separate backend for simple apps', 'SEO-friendly by default', 'Deploys on serverless edge, container PaaS, VPS, or any Node host'],
         limits: ['Server components add mental overhead', 'Large bundle if not careful with client components'],
         compat: [
@@ -622,11 +622,11 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'react_vite',
-        label: 'React + Vite (SPA)',
+        label: 'React — frontend only (needs a separate backend)',
         icon: '⚛️',
-        desc: 'Single-page React app — pure client-side rendering with separate backend API',
+        desc: 'Pure frontend with React — the page logic lives in the browser, and you connect to a separate backend server for data (good for dashboards, internal tools)',
         advantages: ['Fastest dev experience', 'Clear separation of frontend/backend'],
-        limits: ['No SSR — SEO requires extra setup (React Router v7 or similar)', 'Separate backend server required'],
+        limits: ['Search engines may not index your content — extra setup needed for SEO', 'You must deploy a separate backend server for data'],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['dashboard'] }], reason: 'Dashboards are not SEO-critical — SPA works perfectly, fast iteration' },
           { signal: 'recommended', when: [{ key: 'deploy_target', values: ['supabase_hosting'] }], reason: 'BaaS backend means you only need a static frontend — Vite SPA is perfect' },
@@ -635,11 +635,11 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'sveltekit',
-        label: 'SvelteKit',
+        label: 'SvelteKit — lean alternative to Next.js',
         icon: '🔶',
-        desc: 'Full-stack Svelte framework — tiny bundles, clean syntax, very fast',
-        advantages: ['Smallest bundle sizes', 'No virtual DOM = better performance', 'Excellent developer ergonomics'],
-        limits: ['Smaller ecosystem than React', 'Fewer UI component libraries available'],
+        desc: 'A full-stack framework like Next.js but lighter and faster — same idea (pages + backend in one project), different syntax (Svelte instead of React)',
+        advantages: ['Pages load faster — smaller code sent to the browser', 'Clean, readable code with less boilerplate', 'Built-in backend like Next.js'],
+        limits: ['Smaller community than React — fewer tutorials and components', 'Some React libraries won\'t work directly'],
         compat: [
           { signal: 'recommended', when: [{ key: 'deploy_target', values: ['vercel', 'railway'] }], reason: 'SvelteKit deploys natively to serverless edge hosts and container PaaS platforms with adapter-auto' },
           { signal: 'recommended', when: [{ key: 'app_type', values: ['landing', 'dashboard'] }], reason: 'Tiny bundle size and fast rendering — great for content and internal tools' },
@@ -649,11 +649,11 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'vue_nuxt',
-        label: 'Vue + Nuxt',
+        label: 'Vue + Nuxt — popular React alternative',
         icon: '💚',
-        desc: 'Vue.js with Nuxt for SSR/SSG — popular in European and Asian markets',
-        advantages: ['Clean reactive syntax', 'Great official ecosystem (Pinia, Vue Router)'],
-        limits: ['Less popular in US job market than React', 'Fewer enterprise UI libraries'],
+        desc: 'A full-stack framework similar to Next.js but uses Vue instead of React — popular in Europe and Asia, with a famously gentle learning curve',
+        advantages: ['Often considered easier to learn than React', 'Clean syntax, great official tooling'],
+        limits: ['Smaller US community than React — fewer job listings and StackOverflow answers', 'Fewer ready-made UI component libraries'],
         compat: [
           { signal: 'recommended', when: [{ key: 'deploy_target', values: ['vercel', 'railway'] }], reason: 'Nuxt deploys cleanly to serverless edge hosts and container PaaS platforms' },
           { signal: 'incompatible', when: [{ key: 'auth_library', values: ['clerk', 'nextauth'] }], reason: 'Clerk and Auth.js have poor Vue support — use nuxt-auth or BetterAuth' },
@@ -662,11 +662,11 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'vanilla',
-        label: 'Vanilla HTML / JS',
+        label: 'Plain HTML / CSS / JavaScript (no framework)',
         icon: '🌐',
-        desc: 'No framework — plain HTML, CSS, JavaScript',
-        advantages: ['Zero bundle size', 'No build step needed', 'Perfect for simple landing pages'],
-        limits: ['State management is painful at scale', 'No component reuse'],
+        desc: 'Write the basics without any special tools — great for simple pages, not practical once your app has multiple screens or user accounts',
+        advantages: ['Simplest possible setup — open a file and start', 'No tools to install or configure', 'Perfect for landing pages and portfolios'],
+        limits: ['Gets messy fast with multiple pages or user data', 'No built-in way to reuse code across pages'],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['landing'] }], reason: 'Landing pages need zero JS overhead — vanilla is fastest to ship' },
           { signal: 'incompatible', when: [{ key: 'app_type', values: ['saas', 'ecommerce', 'realtime', 'dashboard', 'ai_app'] }], reason: 'Vanilla JS doesn\'t scale for complex interactive apps — pick a framework' },
@@ -680,84 +680,84 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
 
   backend_choice: {
     id: 'backend_choice',
-    question: 'What is your backend / server setup?',
-    hint: 'Some frontend choices (Next.js, SvelteKit) have API routes built-in — you may not need a separate server.',
+    question: 'How will your app handle data and logic on the server?',
+    hint: 'Some frameworks (Next.js, SvelteKit) have this built in — you may not need a separate server at all.',
     type: 'single',
     options: [
       {
         id: 'nextjs_api',
-        label: 'Next.js API Routes (no separate backend)',
+        label: 'Built-in backend (Next.js handles it)',
         icon: '▲',
-        desc: 'Use Next.js Route Handlers / API routes for your backend logic',
+        desc: 'Your Next.js app includes server-side logic — no separate server to manage or deploy (e.g. Route Handlers / Server Actions)',
         advantages: ['No separate server to deploy', 'Shared TypeScript types', 'Deploy frontend + backend as one'],
-        limits: ['Serverless — function timeout varies by platform (10–30s)', 'No persistent in-memory state between requests', 'Not suitable for WebSockets or long-running tasks'],
+        limits: ['Each server function must finish in 10–30 seconds — long-running tasks will be cut off', 'No live connections like chat — only request/response', 'Not suitable for WebSockets or long-running tasks'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['nextjs'] }], reason: 'API Routes are built into Next.js — no extra setup, shared types' },
-          { signal: 'incompatible', when: [{ key: 'frontend_choice', values: ['sveltekit', 'vue_nuxt', 'react_vite', 'vanilla'] }], reason: 'Next.js API Routes require a Next.js frontend — use SvelteKit server routes, Nuxt server routes, or Express instead' },
-          { signal: 'incompatible', when: [{ key: 'app_type', values: ['realtime'] }], reason: 'Serverless functions can\'t hold WebSocket connections — use Express or a persistent server' },
+          { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['nextjs'] }], reason: 'Built into Next.js — no extra setup, shared types' },
+          { signal: 'incompatible', when: [{ key: 'frontend_choice', values: ['sveltekit', 'vue_nuxt', 'react_vite', 'vanilla'] }], reason: 'This option only works inside a Next.js project — pick the built-in option for your chosen framework instead' },
+          { signal: 'incompatible', when: [{ key: 'app_type', values: ['realtime'] }], reason: 'Cannot hold live connections for realtime apps — use a dedicated server instead' },
         ]
       },
       {
         id: 'sveltekit_api',
-        label: 'SvelteKit Server Routes (+server.ts)',
+        label: 'Built-in backend (SvelteKit handles it)',
         icon: '🔶',
-        desc: 'Built-in server endpoints in SvelteKit — no separate backend needed',
-        advantages: ['Collocated with your Svelte pages', 'Shared TypeScript types', 'Runs on serverless edge, container PaaS, or plain Node'],
-        limits: ['Serverless by default on edge platforms — same function timeout limits apply', 'Not suitable for WebSockets without a Node adapter'],
+        desc: 'Your SvelteKit app includes server-side logic — no separate server to manage (e.g. +server.ts endpoint files)',
+        advantages: ['Lives alongside your Svelte pages', 'Shared TypeScript types', 'Deploys everywhere SvelteKit does'],
+        limits: ['Each server function must finish in 10–30 seconds on cloud platforms — same limit as Next.js', 'Live chat/WebSocket support needs extra configuration'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['sveltekit'] }], reason: 'Native to SvelteKit — no extra server, fully integrated' },
-          { signal: 'incompatible', when: [{ key: 'frontend_choice', values: ['nextjs', 'react_vite', 'vue_nuxt', 'vanilla'] }], reason: 'SvelteKit server routes only work inside a SvelteKit app' },
+          { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['sveltekit'] }], reason: 'Built into SvelteKit — no extra server, fully integrated' },
+          { signal: 'incompatible', when: [{ key: 'frontend_choice', values: ['nextjs', 'react_vite', 'vue_nuxt', 'vanilla'] }], reason: 'This option only works inside a SvelteKit project' },
         ]
       },
       {
         id: 'express_node',
-        label: 'Express.js (Node / TypeScript)',
+        label: 'Separate Node.js server (JavaScript/TypeScript)',
         icon: '🟨',
-        desc: 'Minimal Node.js server — industry standard for REST APIs',
-        advantages: ['Enormous ecosystem', 'Simple and flexible', 'Full WebSocket support'],
-        limits: ['Single-threaded — CPU-heavy tasks block the event loop', 'You structure everything yourself'],
+        desc: 'A standalone server your frontend talks to — handles any request, supports live connections (e.g. Express.js, Fastify)',
+        advantages: ['Handles live chat, WebSockets, long uploads', 'Simple and widely documented', 'Works with any frontend'],
+        limits: ['One extra thing to deploy and keep running', 'You structure the code yourself'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'app_type', values: ['realtime'] }], reason: 'Express supports WebSockets and long-running connections — required for realtime apps' },
-          { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['react_vite', 'vue_nuxt', 'vanilla'] }], reason: 'SPA frontends need a separate API server — Express is the standard choice' },
-          { signal: 'recommended', when: [{ key: 'deploy_target', values: ['railway', 'vps'] }], reason: 'Persistent server platforms run Express natively — perfect fit' },
+          { signal: 'recommended', when: [{ key: 'app_type', values: ['realtime'] }], reason: 'Supports live connections and long-running tasks — required for realtime apps' },
+          { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['react_vite', 'vue_nuxt', 'vanilla'] }], reason: 'Your frontend needs a separate server to talk to — this is the standard choice' },
+          { signal: 'recommended', when: [{ key: 'deploy_target', values: ['railway', 'vps'] }], reason: 'Persistent server platforms run this natively — perfect fit' },
         ]
       },
       {
         id: 'fastapi_py',
-        label: 'FastAPI (Python)',
+        label: 'Python backend (best for AI / data apps)',
         icon: '🐍',
-        desc: 'High-performance async Python API with automatic Swagger docs',
+        desc: 'A standalone Python server — the go-to choice when your app processes data, runs AI models, or uses machine learning (e.g. FastAPI)',
         badge: 'Best for AI/ML apps',
-        advantages: ['Best for AI/ML integrations', 'Auto-generated API docs', 'Async by default'],
-        limits: ['Slower startup than Node.js', 'Python dependency management (venv, poetry) adds complexity'],
+        advantages: ['Direct access to all AI/ML libraries (LangChain, PyTorch, etc.)', 'Auto-generated API docs', 'Fast and async'],
+        limits: ['Slightly more setup than a Node server', 'Python environment management (venv) adds a step'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'ai_integration', values: ['rag_vector', 'agents'] }], reason: 'Python is the dominant language for ML/AI — LangChain, HuggingFace, and PyTorch all target Python' },
-          { signal: 'incompatible', when: [{ key: 'app_type', values: ['landing', 'dashboard'] }], reason: 'Python backend is overkill here — use Next.js API routes or Express instead' },
+          { signal: 'recommended', when: [{ key: 'ai_integration', values: ['rag_vector', 'agents'] }], reason: 'Python is the standard language for AI/ML — all major AI tools are Python-first' },
+          { signal: 'incompatible', when: [{ key: 'app_type', values: ['landing', 'dashboard'] }], reason: 'Overkill for this app type — use a built-in backend or a Node server instead' },
         ]
       },
       {
         id: 'go_backend',
-        label: 'Go (Gin / Fiber)',
+        label: 'Go backend (high performance)',
         icon: '🐹',
-        desc: 'Compiled, concurrent Go server — incredibly fast and memory-efficient',
-        advantages: ['10–30x less memory than Node.js', 'Handles 100k+ concurrent connections', 'Single binary deploy'],
-        limits: ['Verbose error handling', 'Smaller ecosystem', 'Steeper learning curve'],
+        desc: 'A compiled Go server — handles huge amounts of traffic on minimal resources (e.g. Gin, Fiber)',
+        advantages: ['Uses far less memory than Node.js at scale', 'Handles many users simultaneously', 'Deploys as a single file'],
+        limits: ['Steeper learning curve — best if you already know Go', 'Fewer ready-made libraries than Node or Python'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'app_type', values: ['realtime', 'saas'] }], reason: 'Go handles massive concurrency cheaply — ideal for high-traffic APIs' },
-          { signal: 'incompatible', when: [{ key: 'ai_integration', values: ['rag_vector', 'agents'] }], reason: 'Go has a limited AI/ML ecosystem — FastAPI (Python) is far better for AI workloads' },
+          { signal: 'recommended', when: [{ key: 'app_type', values: ['realtime', 'saas'] }], reason: 'Handles massive concurrency cheaply — ideal for high-traffic apps' },
+          { signal: 'incompatible', when: [{ key: 'ai_integration', values: ['rag_vector', 'agents'] }], reason: 'Limited AI tooling in Go — use a Python backend for AI-heavy apps' },
         ]
       },
       {
         id: 'supabase_edge',
-        label: 'BaaS Edge Functions',
+        label: 'Platform handles the backend for you (BaaS)',
         icon: '🟢',
-        desc: 'Serverless functions co-located with your BaaS platform — no separate backend to deploy (e.g. Supabase Edge Functions)',
-        advantages: ['Integrated with your BaaS DB and Auth', 'Deploy in seconds', 'Included in BaaS free tier'],
-        limits: ['Non-Node runtime (e.g. Deno) — not all npm packages work', '~150ms cold start', 'Limited to runtime-compatible packages'],
+        desc: 'Your BaaS platform (e.g. Supabase) runs small backend functions alongside your database — no separate server to deploy',
+        advantages: ['No server to manage', 'Automatically connected to your database and auth', 'Included in your BaaS plan'],
+        limits: ['Not all npm packages are supported (different runtime)', 'May take a moment to start up on the first request', 'Limited to short-lived tasks'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'db_for_vercel', values: ['supabase'] }], reason: 'Already using a managed Postgres + BaaS — co-located edge functions keep everything in one platform' },
-          { signal: 'incompatible', when: [{ key: 'db_for_vercel', values: ['neon', 'planetscale', 'turso', 'mongodb_atlas'] }], reason: 'BaaS edge functions work best alongside their own DB — mixing providers adds complexity' },
-          { signal: 'incompatible', when: [{ key: 'app_type', values: ['realtime', 'ai_app'] }], reason: 'Edge functions have cold starts and no persistent state — not suitable for streaming or long-running AI tasks' },
+          { signal: 'recommended', when: [{ key: 'db_for_vercel', values: ['supabase'] }], reason: 'Already using a BaaS platform — keeping the backend there avoids managing a separate server' },
+          { signal: 'incompatible', when: [{ key: 'db_for_vercel', values: ['neon', 'planetscale', 'turso', 'mongodb_atlas'] }], reason: 'BaaS functions work best alongside their own database — mixing providers adds unnecessary complexity' },
+          { signal: 'incompatible', when: [{ key: 'app_type', values: ['realtime', 'ai_app'] }], reason: 'Not suitable for streaming AI responses or live connections — use a dedicated server instead' },
         ]
       }
     ],

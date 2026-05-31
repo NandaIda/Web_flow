@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { getMermaid } from '../utils/mermaid';
 import {
   Copy, Check, X, BookOpen, Map, ChevronRight,
-  ArrowRight, Lightbulb, Clock, Code2, Layers
+  ArrowRight, Lightbulb, Clock, Code2, Layers, Compass
 } from 'lucide-react';
 import { TOOL_KNOWLEDGE, LEARNING_ROADMAP, ToolInfo } from '../data/toolKnowledge';
 import { AnswerMap, FLOW_QUESTIONS } from '../data/conversationalFlow';
@@ -234,78 +234,76 @@ function buildStackDiagram(answers: AnswerMap): string {
 const FULL_MAP_DEFINITION = `flowchart TD
   START["🚀 Start: Build a Web App"]:::start
 
-  START --> FE["Frontend Choice"]:::layer
-  FE --> FE1["⚛️ React"]:::fe
+  START --> FE["Frontend Framework"]:::layer
+  FE --> FE1["⚛️ React + Vite SPA"]:::fe
   FE --> FE2["▲ Next.js"]:::fe
-  FE --> FE3["💚 Vue"]:::fe
-  FE --> FE4["🔶 Svelte"]:::fe
-  FE --> FE5["🌐 Plain HTML"]:::fe
+  FE --> FE3["🔶 SvelteKit"]:::fe
+  FE --> FE4["💚 Vue + Nuxt"]:::fe
+  FE --> FE5["🌐 Vanilla HTML/JS"]:::fe
 
-  FE1 --> BUILD["Build Tool"]:::layer
-  FE2 --> BUILD
-  FE3 --> BUILD
-  FE4 --> BUILD
-  BUILD --> B1["⚡ Vite"]:::tool
-  BUILD --> B2["▲ Next.js CLI"]:::tool
-  BUILD --> B3["🔶 SvelteKit"]:::tool
-
-  B1 --> STYLE["Styling"]:::layer
-  B2 --> STYLE
-  B3 --> STYLE
+  FE1 --> STYLE["Styling"]:::layer
+  FE2 --> STYLE
+  FE3 --> STYLE
+  FE4 --> STYLE
   STYLE --> S1["🎨 Tailwind CSS"]:::tool
-  STYLE --> S2["🧩 shadcn/ui"]:::tool
-  STYLE --> S3["📄 CSS Modules"]:::tool
+  STYLE --> S2["🧩 shadcn/ui — React"]:::tool
+  STYLE --> S3["🔶 shadcn-svelte"]:::tool
+  STYLE --> S4["💚 Nuxt UI"]:::tool
+  STYLE --> S5["📄 CSS Modules"]:::tool
+  STYLE --> S6["🅱️ Bootstrap"]:::tool
 
-  STYLE --> API["API Layer"]:::layer
-  API --> A1["REST API"]:::tool
-  API --> A2["GraphQL"]:::tool
-  API --> A3["tRPC"]:::tool
-  API --> A4["WebSockets"]:::tool
+  STYLE --> BACK["Backend / API"]:::layer
+  BACK --> B1["▲ Next.js API Routes"]:::be
+  BACK --> B2["🔶 SvelteKit Server Routes"]:::be
+  BACK --> B3["🟨 Express.js"]:::be
+  BACK --> B4["🐍 FastAPI"]:::be
+  BACK --> B5["🐹 Go — Gin / Fiber"]:::be
+  BACK --> B6["🟢 BaaS Edge Functions"]:::be
 
-  A1 --> BACK["Backend Runtime"]:::layer
-  A2 --> BACK
-  A3 --> BACK
-  A4 --> BACK
-  BACK --> R1["🟨 Node.js / TS"]:::be
-  BACK --> R2["🐍 Python"]:::be
-  BACK --> R3["🐹 Go"]:::be
-  BACK --> R4["⚙️ Rust"]:::be
-
-  R1 --> F1["Express"]:::tool
-  R1 --> F2["Fastify"]:::tool
-  R1 --> F3["NestJS"]:::tool
-  R2 --> F4["FastAPI"]:::tool
-  R2 --> F5["Django"]:::tool
-  R3 --> F6["Gin"]:::tool
-  R4 --> F7["Axum"]:::tool
-
-  F1 --> DB["Database"]:::layer
-  F2 --> DB
-  F3 --> DB
-  F4 --> DB
-  F5 --> DB
-  F6 --> DB
-  F7 --> DB
-  DB --> D1["🐘 PostgreSQL"]:::db
-  DB --> D2["🍃 MongoDB"]:::db
-  DB --> D3["📁 SQLite"]:::db
+  B1 --> DB["Database"]:::layer
+  B2 --> DB
+  B3 --> DB
+  B4 --> DB
+  B5 --> DB
+  B6 --> DB
+  DB --> D1["🐘 PostgreSQL — self-hosted"]:::db
+  DB --> D2["✨ Serverless Postgres"]:::db
+  DB --> D3["🟢 Managed Postgres + BaaS"]:::db
+  DB --> D4["🪐 Serverless MySQL"]:::db
+  DB --> D5["🦅 Edge-Distributed SQLite"]:::db
+  DB --> D6["🍃 Managed Document DB"]:::db
 
   D1 --> AUTH["Authentication"]:::layer
   D2 --> AUTH
   D3 --> AUTH
+  D4 --> AUTH
+  D5 --> AUTH
+  D6 --> AUTH
   AUTH --> AU1["🔒 Auth.js"]:::tool
-  AUTH --> AU2["🧑‍💼 Clerk"]:::tool
-  AUTH --> AU3["🟢 Supabase Auth"]:::tool
-  AUTH --> AU4["🔑 OAuth only"]:::tool
+  AUTH --> AU2["🏮 BetterAuth"]:::tool
+  AUTH --> AU3["🧑‍💼 Hosted Auth Service"]:::tool
+  AUTH --> AU4["🟢 BaaS Auth SDK"]:::tool
+  AUTH --> AU5["🔑 OAuth only"]:::tool
+  AUTH --> AU6["🔧 Custom JWT"]:::tool
 
-  AU1 --> DEPLOY["Deployment"]:::layer
-  AU2 --> DEPLOY
-  AU3 --> DEPLOY
-  AU4 --> DEPLOY
-  DEPLOY --> DP1["▲ Vercel"]:::dp
-  DEPLOY --> DP2["🚂 Railway"]:::dp
-  DEPLOY --> DP3["🖥️ VPS"]:::dp
-  DEPLOY --> DP4["🟢 Supabase"]:::dp
+  AU1 --> PAYMENTS["Payments"]:::layer
+  AU2 --> PAYMENTS
+  AU3 --> PAYMENTS
+  AU4 --> PAYMENTS
+  AU5 --> PAYMENTS
+  AU6 --> PAYMENTS
+  PAYMENTS --> PAY1["💳 Payment Gateway"]:::tool
+  PAYMENTS --> PAY2["🍋 Merchant of Record"]:::tool
+  PAYMENTS --> PAY3["❌ No Payments"]:::tool
+
+  PAY1 --> DEPLOY["Deployment"]:::layer
+  PAY2 --> DEPLOY
+  PAY3 --> DEPLOY
+  DEPLOY --> DP1["▲ Serverless Edge Hosting"]:::dp
+  DEPLOY --> DP2["🚂 Container PaaS"]:::dp
+  DEPLOY --> DP3["🖥️ Self-Managed VPS"]:::dp
+  DEPLOY --> DP4["🟢 Backend-as-a-Service"]:::dp
+  DEPLOY --> DP5["☁️ Enterprise Cloud"]:::dp
 
   DP3 --> PROC["Process Manager"]:::layer
   PROC --> P1["🔄 PM2"]:::tool
@@ -322,8 +320,8 @@ const FULL_MAP_DEFINITION = `flowchart TD
   DP2 --> MON
   PR1 --> MON
   PR2 --> MON
-  MON --> M1["🐛 Sentry"]:::tool
-  MON --> M2["📊 Grafana"]:::tool
+  MON --> M1["🐛 Error Tracking"]:::tool
+  MON --> M2["📊 Metrics / Dashboards"]:::tool
 
   M1 --> DONE["✅ Production App"]:::done
   M2 --> DONE
@@ -495,6 +493,144 @@ function LearningRoadmap() {
   );
 }
 
+// ─── DECISION GUIDE ──────────────────────────────────────────────────────────
+
+interface DecisionScenario {
+  emoji: string;
+  title: string;
+  question: string;
+  answer: string;
+  stack: { role: string; tool: string; why: string }[];
+}
+
+const DECISION_SCENARIOS: DecisionScenario[] = [
+  {
+    emoji: '📈',
+    title: 'Stock screener / data dashboard',
+    question: 'I want to build a tool that shows live financial data and lets users filter stocks',
+    answer: 'Use React + Express + PostgreSQL on Railway. Dashboards don\'t need SEO, so a pure frontend works great. Express fetches external data APIs and stores results. Railway keeps the server running 24/7.',
+    stack: [
+      { role: 'Frontend', tool: 'React + Vite', why: 'Fast to build, no SEO needed for internal tools' },
+      { role: 'Backend', tool: 'Express.js', why: 'Fetches external APIs, handles data processing' },
+      { role: 'Database', tool: 'PostgreSQL', why: 'Stores historical data and user preferences' },
+      { role: 'Auth', tool: 'Google login (OAuth)', why: 'Easiest login for a tool — no passwords to manage' },
+      { role: 'Hosting', tool: 'Railway', why: 'Keeps your server running, easy to deploy' },
+    ],
+  },
+  {
+    emoji: '🏢',
+    title: 'SaaS tool (project manager, CRM, invoicing)',
+    question: 'I want to build a web app that multiple teams can sign up for and pay monthly',
+    answer: 'Use Next.js + Supabase + Vercel + Stripe. Supabase gives you database and login in one dashboard. Next.js handles SEO and server logic. Stripe handles subscriptions.',
+    stack: [
+      { role: 'Frontend + Backend', tool: 'Next.js', why: 'Handles pages and API in one project, great for SEO' },
+      { role: 'Database + Auth', tool: 'Supabase', why: 'Database and login in one dashboard — fastest to set up' },
+      { role: 'Payments', tool: 'Stripe', why: 'Handles subscriptions, trials, and invoices' },
+      { role: 'Hosting', tool: 'Vercel', why: 'Push to GitHub and it deploys automatically' },
+    ],
+  },
+  {
+    emoji: '🤖',
+    title: 'AI chat app or writing assistant',
+    question: 'I want to build an app that lets users chat with an AI or ask questions about their documents',
+    answer: 'Use Next.js + Railway + an AI API (OpenAI/Anthropic). Railway keeps your server running so AI responses can stream without getting cut off. Serverless platforms time out on long AI responses.',
+    stack: [
+      { role: 'Frontend + Backend', tool: 'Next.js', why: 'Clean UI and server logic in one project' },
+      { role: 'AI', tool: 'OpenAI / Anthropic API', why: 'Powers the chat — pay per use, no GPU needed' },
+      { role: 'Database', tool: 'Supabase', why: 'Stores conversation history and user accounts' },
+      { role: 'Hosting', tool: 'Railway', why: 'Keeps connections alive for streaming AI responses' },
+    ],
+  },
+  {
+    emoji: '🛍️',
+    title: 'Online store or marketplace',
+    question: 'I want to sell products online with a cart, checkout, and order management',
+    answer: 'Use Next.js + Supabase + Stripe + Vercel. Next.js serves product pages fast (good for Google rankings). Stripe handles payments without you touching card data.',
+    stack: [
+      { role: 'Frontend + Backend', tool: 'Next.js', why: 'Product pages rank on Google, handles checkout flow' },
+      { role: 'Database + Auth', tool: 'Supabase', why: 'Stores products, orders, and customer accounts' },
+      { role: 'Payments', tool: 'Stripe', why: 'Handles card payments, refunds, and fraud — you never touch card numbers' },
+      { role: 'Hosting', tool: 'Vercel', why: 'Global CDN makes product pages load fast worldwide' },
+    ],
+  },
+  {
+    emoji: '📄',
+    title: 'Landing page, blog, or portfolio',
+    question: 'I just need a website to explain my product or showcase my work',
+    answer: 'Use Next.js + Vercel. No database needed for a simple site. Pages are pre-built so they load in milliseconds and rank well on Google.',
+    stack: [
+      { role: 'Framework', tool: 'Next.js', why: 'Pre-builds pages for instant loading and Google visibility' },
+      { role: 'Styling', tool: 'Tailwind CSS', why: 'Design system built-in — no need to write CSS from scratch' },
+      { role: 'Hosting', tool: 'Vercel', why: 'Free tier, automatic HTTPS, global fast loading' },
+    ],
+  },
+  {
+    emoji: '⚡',
+    title: 'Live chat or multiplayer app',
+    question: 'I want users to see each other\'s actions in real time, like a chat or collaborative tool',
+    answer: 'Use React + Express + Railway. Live connections require a server that stays open — serverless platforms (like Vercel\'s free tier) close connections after a few seconds, which breaks real-time features.',
+    stack: [
+      { role: 'Frontend', tool: 'React + Vite', why: 'Fast to update UI in real time as messages arrive' },
+      { role: 'Backend', tool: 'Express.js + Socket.io', why: 'Keeps connections open for live message delivery' },
+      { role: 'Database', tool: 'PostgreSQL', why: 'Stores message history and user data' },
+      { role: 'Hosting', tool: 'Railway', why: 'Runs your server 24/7 — required for live connections' },
+    ],
+  },
+];
+
+function DecisionGuide() {
+  const [open, setOpen] = useState<number | null>(null);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm text-gray-500 leading-relaxed">
+        Not sure what tools to use? Pick your situation and see exactly what stack to build with — and why.
+      </p>
+      <div className="flex flex-col gap-2">
+        {DECISION_SCENARIOS.map((scenario, i) => (
+          <div
+            key={i}
+            className={`border rounded overflow-hidden transition-all ${
+              open === i ? 'border-blue-400 shadow-sm' : 'border-[#D4D4D8]'
+            } bg-white`}
+          >
+            <button
+              onClick={() => setOpen(open === i ? null : i)}
+              className="w-full flex items-center gap-3 p-4 text-left hover:bg-zinc-50 transition-all"
+            >
+              <span className="text-2xl shrink-0">{scenario.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-sm text-zinc-900">{scenario.title}</div>
+                <div className="text-xs text-gray-400 mt-0.5 italic truncate">"{scenario.question}"</div>
+              </div>
+              <ChevronRight className={`h-4 w-4 text-gray-400 shrink-0 transition-transform ${open === i ? 'rotate-90' : ''}`} />
+            </button>
+
+            {open === i && (
+              <div className="px-4 pb-4 flex flex-col gap-4 border-t border-gray-100 pt-3">
+                <p className="text-sm text-gray-700 leading-relaxed">{scenario.answer}</p>
+
+                <div className="flex flex-col gap-2">
+                  <div className="text-xs font-black uppercase tracking-wider text-gray-400">Recommended stack</div>
+                  {scenario.stack.map((s, j) => (
+                    <div key={j} className="flex items-start gap-3 text-sm">
+                      <span className="text-xs font-bold text-gray-400 w-28 shrink-0 pt-0.5">{s.role}</span>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-bold text-zinc-900">{s.tool}</span>
+                        <span className="text-gray-500 ml-2">— {s.why}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 interface VisualFlowchartProps {
@@ -503,9 +639,11 @@ interface VisualFlowchartProps {
 }
 
 type ChartTab = 'stack' | 'ecosystem' | 'roadmap';
+type EcoTab = 'guide' | 'explorer' | 'map';
 
 export default function VisualFlowchart({ answers, handleCopyClipboard }: VisualFlowchartProps) {
   const [activeTab, setActiveTab] = useState<ChartTab>(answers ? 'stack' : 'ecosystem');
+  const [ecoTab, setEcoTab] = useState<EcoTab>('guide');
   const [selectedTool, setSelectedTool] = useState<ToolInfo | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -585,33 +723,76 @@ export default function VisualFlowchart({ answers, handleCopyClipboard }: Visual
 
       {/* ── ECOSYSTEM MAP ──────────────────────────────────────────────── */}
       {activeTab === 'ecosystem' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* left: diagram */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-black text-zinc-900">Full Stack Decision Map</h2>
+        <div className="flex flex-col gap-4">
+          {/* ecosystem sub-tabs */}
+          <div className="flex gap-1 bg-white border border-[#D4D4D8] rounded p-1 self-start flex-wrap">
+            {([
+              { id: 'guide' as EcoTab, label: 'When should I use X?', icon: <Compass className="h-3.5 w-3.5" /> },
+              { id: 'explorer' as EcoTab, label: 'Tool Explorer', icon: <Lightbulb className="h-3.5 w-3.5" /> },
+              { id: 'map' as EcoTab, label: 'Full Map', icon: <Map className="h-3.5 w-3.5" /> },
+            ]).map(t => (
               <button
-                onClick={() => handleCopyDiagram(FULL_MAP_DEFINITION)}
-                className="flex items-center gap-1.5 text-xs border border-[#D4D4D8] hover:border-gray-400 text-gray-700 font-bold px-2.5 py-1.5 rounded transition-all"
+                key={t.id}
+                onClick={() => setEcoTab(t.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
+                  ecoTab === t.id ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'
+                }`}
               >
-                {copied ? <><Check className="h-3.5 w-3.5" /> Copied!</> : <><Copy className="h-3.5 w-3.5" /> Copy diagram</>}
+                {t.icon} {t.label}
               </button>
-            </div>
-            <div className="bg-white border border-[#D4D4D8] rounded p-4 overflow-auto max-h-[600px]">
-              <MermaidChart definition={FULL_MAP_DEFINITION} id="ecosystem" />
-            </div>
+            ))}
           </div>
 
-          {/* right: explorer */}
-          <div className="flex flex-col gap-4">
-            <h2 className="text-base font-black text-zinc-900">
-              🔍 Tool Explorer
-              <span className="text-sm font-normal text-gray-500 ml-2">— click any tool to learn more</span>
-            </h2>
-            <div className="bg-white border border-[#D4D4D8] rounded p-4 overflow-y-auto max-h-[600px]">
-              <EcosystemExplorer onToolClick={id => setSelectedTool(TOOL_KNOWLEDGE[id] || null)} />
+          {ecoTab === 'guide' && (
+            <div className="max-w-2xl">
+              <DecisionGuide />
             </div>
-          </div>
+          )}
+
+          {ecoTab === 'explorer' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-black text-zinc-900">Full Stack Decision Map</h2>
+                  <button
+                    onClick={() => handleCopyDiagram(FULL_MAP_DEFINITION)}
+                    className="flex items-center gap-1.5 text-xs border border-[#D4D4D8] hover:border-gray-400 text-gray-700 font-bold px-2.5 py-1.5 rounded transition-all"
+                  >
+                    {copied ? <><Check className="h-3.5 w-3.5" /> Copied!</> : <><Copy className="h-3.5 w-3.5" /> Copy diagram</>}
+                  </button>
+                </div>
+                <div className="bg-white border border-[#D4D4D8] rounded p-4 overflow-auto max-h-[600px]">
+                  <MermaidChart definition={FULL_MAP_DEFINITION} id="ecosystem" />
+                </div>
+              </div>
+              <div className="flex flex-col gap-4">
+                <h2 className="text-base font-black text-zinc-900">
+                  🔍 Tool Explorer
+                  <span className="text-sm font-normal text-gray-500 ml-2">— click any tool to learn more</span>
+                </h2>
+                <div className="bg-white border border-[#D4D4D8] rounded p-4 overflow-y-auto max-h-[600px]">
+                  <EcosystemExplorer onToolClick={id => setSelectedTool(TOOL_KNOWLEDGE[id] || null)} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {ecoTab === 'map' && (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-black text-zinc-900">Full Stack Decision Map</h2>
+                <button
+                  onClick={() => handleCopyDiagram(FULL_MAP_DEFINITION)}
+                  className="flex items-center gap-1.5 text-xs border border-[#D4D4D8] hover:border-gray-400 text-gray-700 font-bold px-2.5 py-1.5 rounded transition-all"
+                >
+                  {copied ? <><Check className="h-3.5 w-3.5" /> Copied!</> : <><Copy className="h-3.5 w-3.5" /> Copy diagram</>}
+                </button>
+              </div>
+              <div className="bg-white border border-[#D4D4D8] rounded p-4 overflow-auto max-h-[700px]">
+                <MermaidChart definition={FULL_MAP_DEFINITION} id="ecosystem-map" />
+              </div>
+            </div>
+          )}
         </div>
       )}
 

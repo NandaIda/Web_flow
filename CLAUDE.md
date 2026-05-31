@@ -2,107 +2,115 @@
 
 ## What this app does
 
-This is a **stack decision wizard** — a tool that helps developers choose and configure their tech stack through a guided conversational flow, then generates a ready-to-paste AI prompt (for Cursor, Claude, ChatGPT) based on their choices.
+A **stack decision wizard** for vibe-coders and developers. The user answers branching questions about their project (app type, hosting, database, auth, frontend, backend, styling, AI, payments). The app generates two outputs: a **ready-to-paste AI prompt** for Cursor/Claude/ChatGPT, and a **shell setup command script** to bootstrap the project.
 
-It is a **React + Vite + Tailwind** single-page app hosted on AI Studio / Node.js. It has no backend of its own — it is a pure frontend utility.
-
----
-
-## User flow (tabs in order)
-
-1. **Flow** (`ConversationalFlow.tsx`) — branching wizard. User answers questions one at a time. Each answer determines the next question via the `next` map in `conversationalFlow.ts`.
-2. **Graphs** (`VisualFlowchart.tsx`) — renders a Mermaid diagram of the chosen stack topology based on wizard answers.
-3. **Builder / Vibecoder** (`Vibecoder.tsx`) — shows improvement checklists (UI, UX, Security, Perf, Personalization). Checked items inject `promptSnippet` strings into the final AI prompt. The prompt is built by `buildBasePrompt()` in `Vibecoder.tsx`.
-4. **Learn** (`LearnMore.tsx`) — glossary of tools with a tool-knowledge drawer, and a learning roadmap.
-
-State flows: `App.tsx` holds `wizardAnswers: AnswerMap` and passes it down to `VisualFlowchart` and `Vibecoder`. Both are read-only consumers of the wizard output.
+Built with React + Vite + Tailwind. Pure frontend — no backend, no server, no API calls. Runs fully in the browser.
 
 ---
 
-## Key files and their roles
+## Tab flow
+
+| Tab | Component | Purpose |
+|---|---|---|
+| Flow | `ConversationalFlow.tsx` | Branching wizard — one question at a time, state persisted to localStorage |
+| Graphs | `VisualFlowchart.tsx` | Mermaid diagram of the chosen stack + full ecosystem map |
+| Builder | `Vibecoder.tsx` | Improvement checklists → generates the final AI prompt |
+| Learn | `LearnMore.tsx` | Tool glossary drawer + learning roadmap |
+
+`App.tsx` holds `wizardAnswers: AnswerMap` in state and passes it to `VisualFlowchart` and `Vibecoder` as read-only props. Both tabs are consumers — they do not write answers back.
+
+---
+
+## Key files
 
 | File | Role |
 |---|---|
-| `src/data/conversationalFlow.ts` | All wizard questions, options, branching logic, `getNextQuestion()` |
-| `src/components/ConversationalFlow.tsx` | Wizard UI — renders questions, history, answer cards |
-| `src/components/Vibecoder.tsx` | Checklist UI + `buildBasePrompt()` — generates the AI prompt |
-| `src/components/VisualFlowchart.tsx` | Mermaid diagram of the chosen stack |
-| `src/data/predefinedStacks.ts` | Static stack presets shown in a comparison matrix |
-| `src/data/toolKnowledge.ts` | Tool glossary entries used in LearnMore and flowchart tooltips |
-| `src/App.tsx` | Tab routing, state wiring, layout |
+| `src/data/conversationalFlow.ts` | All questions, options, branching (`next` maps), compat rules, `getNextQuestion()`, `getCompatSignal()` |
+| `src/components/ConversationalFlow.tsx` | Wizard UI, history breadcrumb, results panel, setup command generator (`getSetupCommands()`), AI prompt (`getAIPrompt()`) |
+| `src/components/Vibecoder.tsx` | Improvement checklists, `buildBasePrompt()`, `promptSnippet` functions |
+| `src/components/VisualFlowchart.tsx` | Per-stack Mermaid diagram + full ecosystem map (`FULL_MAP_DEFINITION`) |
+| `src/data/predefinedStacks.ts` | Static stack presets used in `LearnMore` and `Header` count |
+| `src/data/toolKnowledge.ts` | Tool glossary entries — `what`, `why`, `beginner`, `alternatives`, `usedWith` |
 
 ---
 
-## The cross-check problem (core known issue)
-
-`buildBasePrompt()` in `Vibecoder.tsx` appends improvement `promptSnippet` strings **unconditionally** — regardless of which frontend the user chose. This produces incorrect output when the user picks a non-React frontend.
-
-**The problem**: checklist items contain React/Next.js-specific library names hardcoded in their `promptSnippet` field. When a user picks SvelteKit or Vue+Nuxt as their frontend, the generated prompt incorrectly instructs them to use React-only tools.
-
-**Known mismatches by frontend**:
-
-| `promptSnippet` content | Only valid for `frontend_choice` |
-|---|---|
-| `next/image`, `next/font` | `nextjs` |
-| `Framer Motion` | `nextjs`, `react_vite` |
-| `shadcn AlertDialog`, `shadcn Breadcrumb` | `nextjs`, `react_vite` |
-| `react-hot-toast`, `sonner` (React) | `nextjs`, `react_vite` |
-| `react-dropzone` | `nextjs`, `react_vite` |
-| `next-intl` | `nextjs` |
-| `tailwind.config.ts` (TS config) | `nextjs`, `react_vite` (not Svelte's JS config) |
-| `recharts` | `nextjs`, `react_vite` (Svelte has `layerchart`, `svelte-chartjs`) |
-
-**Correct equivalents for SvelteKit**:
-- `svelte-sonner` for toasts
-- `svelte/transition` or `@motionone/svelte` for animations
-- `shadcn-svelte` or `bits-ui` for components
-- `@sveltejs/enhanced-img` for image optimization
-- Auth.js SvelteKit adapter (not Next.js adapter)
-- `svelte-i18n` or `paraglide-js` for i18n
-
-**When fixing**: the `promptSnippet` field on `CheckItem` should either:
-- Be replaced with a function `(answers: AnswerMap) => string` that returns the correct library name, OR
-- The `buildBasePrompt()` function should apply a mapping layer before injecting snippets, keyed on `answers['frontend_choice']`
-
----
-
-## Branching logic rules (important for edits to `conversationalFlow.ts`)
-
-- `next` map: key is the answer `id`, value is the next question `id`. Use `'*'` as fallback.
-- `getNextQuestion()` in `conversationalFlow.ts` contains **context-sensitive skips** — read these before adding new questions:
-  - Supabase BaaS hosting skips `backend_choice` → goes straight to `styling_choice`
-  - Supabase Auth (built-in) skips `auth_library`
-  - `landing` and `dashboard` app types skip `ai_integration` and `payments`
-- `FLOW_START = 'project_name'` — always the entry point
-- `'done'` is a terminal sentinel in `next` maps — `getNextQuestion()` returns `null` for it
-
----
-
-## Data model: `AnswerMap`
+## AnswerMap — the data contract
 
 ```ts
 type AnswerMap = Record<string, string | string[]>
 ```
 
-Key question IDs that drive prompt generation in `buildBasePrompt()`:
+All question IDs and their valid answer IDs:
 
-| Key | Type | Notes |
-|---|---|---|
-| `project_name` | `string` | |
-| `project_description` | `string` | |
-| `app_type` | `string` | `saas`, `realtime`, `dashboard`, `ecommerce`, `ai_app`, `landing` |
-| `deploy_target` | `string` | `vercel`, `railway`, `vps`, `supabase_hosting`, `aws` |
-| `db_for_vercel` | `string` | set when `deploy_target === 'vercel'` |
-| `db_general` | `string` | set otherwise |
-| `auth_strategy` | `string` | `email_password`, `oauth_only`, `email_plus_oauth`, `magic_link`, `no_auth` |
-| `auth_library` | `string` | `nextauth`, `clerk`, `better_auth`, `supabase_auth_lib`, `custom_jwt` |
-| `auth_providers` | `string[]` | multi-select: `google`, `github`, `discord` |
-| `email_verification` | `string` | `verify_required`, `verify_optional` |
-| `frontend_choice` | `string` | `nextjs`, `react_vite`, `sveltekit`, `vue_nuxt`, `vanilla` |
-| `backend_choice` | `string` | `nextjs_api`, `express_node`, `fastapi_py`, `go_backend`, `supabase_edge` |
-| `styling_choice` | `string` | `tailwind`, `shadcn`, `css_modules`, `bootstrap` |
-| `ai_integration` | `string` | `no_ai`, `llm_chat`, `rag_vector`, `agents` |
-| `payments` | `string` | `no_payments`, `stripe`, `lemon_squeezy` |
+| Key | Valid values |
+|---|---|
+| `app_type` | `saas`, `realtime`, `dashboard`, `ecommerce`, `ai_app`, `landing` |
+| `deploy_target` | `vercel`, `railway`, `vps`, `supabase_hosting`, `aws` |
+| `db_for_vercel` | `supabase`, `planetscale`, `neon`, `turso`, `mongodb_atlas` |
+| `db_general` | `postgres_self`, `supabase`, `mysql_self`, `mongodb_atlas`, `sqlite` |
+| `auth_supabase` | `supabase_auth_yes`, `supabase_auth_no` |
+| `auth_strategy` | `email_password`, `oauth_only`, `email_plus_oauth`, `magic_link`, `no_auth` |
+| `email_verification` | `verify_required`, `verify_optional` |
+| `auth_providers` | `string[]` — `google`, `github`, `discord` |
+| `auth_library` | `nextauth`, `clerk`, `better_auth`, `supabase_auth_lib`, `custom_jwt` |
+| `frontend_choice` | `nextjs`, `react_vite`, `sveltekit`, `vue_nuxt`, `vanilla` |
+| `backend_choice` | `nextjs_api`, `sveltekit_api`, `express_node`, `fastapi_py`, `go_backend`, `supabase_edge` |
+| `styling_choice` | `tailwind`, `shadcn`, `shadcn_svelte`, `nuxt_ui`, `css_modules`, `bootstrap` |
+| `ai_integration` | `no_ai`, `llm_chat`, `rag_vector`, `agents` |
+| `payments` | `no_payments`, `stripe`, `lemon_squeezy` |
+
+---
+
+## Compatibility system (`compat`)
+
+Every `FlowOption` has an optional `compat?: CompatibilityRule[]`. Rules are evaluated by `getCompatSignal(opt, answers)` which returns `recommended | incompatible | neutral`.
+
+`OptionCard` in `ConversationalFlow.tsx` calls `getCompatSignal` and renders:
+- Green border + "✓ Best match" badge + reason text → `recommended`
+- Red border + dimmed opacity + "✗ Not recommended" + "⚠ reason" → `incompatible`
+- Default styling → `neutral`
+
+Rules fire when **all** `when` conditions match (AND logic). First matching rule wins.
+
+---
+
+## `promptSnippet` — framework-aware functions
+
+`CheckItem.promptSnippet` is `(answers: AnswerMap) => string`. It reads `answers['frontend_choice']`, `answers['backend_choice']`, and the DB key to return the correct library name for the user's chosen stack.
+
+**Do not write `promptSnippet` as a plain string.** Every item must be a function. Framework mapping:
+
+| Concern | Next.js | SvelteKit | Vue/Nuxt | React/Vite |
+|---|---|---|---|---|
+| Fonts | `next/font/google` | `@fontsource/*` | `@nuxtjs/i18n` / link tag | `<link>` tag |
+| Animations | Framer Motion | `svelte/transition` | `<Transition>` / @vueuse/motion | Framer Motion |
+| Toasts | sonner | svelte-sonner | vue-toastification | sonner |
+| Confirm dialog | shadcn AlertDialog | bits-ui Dialog | Nuxt UI Modal | generic modal |
+| Breadcrumb | shadcn + usePathname | `$page.url.pathname` | `useRoute()` | URL split |
+| i18n | next-intl | paraglide-js | @nuxtjs/i18n | /locales JSON |
+| Charts | recharts | layerchart | vue-chartjs | recharts |
+| Images | next/image | @sveltejs/enhanced-img | NuxtImg | native lazy |
+| Rate limiting | Redis middleware | based on backend choice | | |
+
+---
+
+## Branching rules (read before editing `conversationalFlow.ts`)
+
+- `next` map: key = answer `id`, value = next question `id`. Use `'*'` as fallback.
+- `FLOW_START = 'project_name'` — always the entry point.
+- `'done'` sentinel in `next` → `getNextQuestion()` returns `null`.
+- Context-sensitive skips in `getNextQuestion()`:
+  - `deploy_target === 'supabase_hosting'` skips `backend_choice` → goes to `styling_choice`
+  - `auth_supabase === 'supabase_auth_yes'` skips `auth_library`
+  - `app_type === 'landing' | 'dashboard'` skips `ai_integration` and `payments`
+
+---
+
+## Setup command generator (`getSetupCommands()`)
+
+Lives in `ConversationalFlow.tsx` inside `ResultsPanel`. Generates shell commands based on the full `AnswerMap`. All option IDs must be handled here — when you add a new option to `conversationalFlow.ts`, add the corresponding install commands here too.
+
+Current coverage: all frontend init commands, all DB clients (including `turso`, `planetscale`, `mongodb_atlas` with Python support), all auth libraries (`nextauth` with per-frontend adapter, `clerk` with per-frontend SDK, `better_auth`, `supabase_auth_lib`, `custom_jwt`), all styling init (`shadcn`, `shadcn_svelte`, `nuxt_ui`, `tailwind`), AI SDKs (JS and Python), payments (`stripe` with Python, `lemon_squeezy`).
 
 ---
 
@@ -110,28 +118,33 @@ Key question IDs that drive prompt generation in `buildBasePrompt()`:
 
 ```bash
 npm install
-# Set GEMINI_API_KEY in .env.local
-npm run dev   # runs on http://localhost:3000
+npm run dev        # http://localhost:3000
+npm run lint       # tsc --noEmit
+npm run build      # production build to /dist
 ```
 
-No backend server. Vite serves everything. The Gemini API key is only needed if AI features are active — the wizard itself runs fully offline.
+No backend. No env vars required for the wizard. `.env.local` only needed if Gemini AI generation features are active.
 
 ---
 
 ## Design system
 
-- Background: `#F4F4F5` (off-white)
-- Headers/text: `#18181B` (charcoal)
-- Accent: `#2563EB` (blue-600)
-- Font: sans-serif body, `font-mono` for specs and code snippets
-- Minimum font size: `0.875rem` (14px) for any user-readable text; `0.75rem` (12px) for labels/badges only
-- All layouts must be mobile-first responsive
+| Token | Value |
+|---|---|
+| Background | `#F4F4F5` (off-white canvas) |
+| Text / headers | `#18181B` (charcoal) |
+| Accent | `#2563EB` (blue-600) |
+| Code / metadata | `font-mono` |
+| Min readable font | `0.875rem` (14px) — `0.75rem` only for badges/labels |
+| Line height | 1.5 minimum on all body text |
 
 ---
 
 ## What NOT to do
 
-- Do not add a separate backend server — this app is intentionally frontend-only
+- Do not add a backend server — intentionally frontend-only
 - Do not use CommonJS `require()` — ESM throughout
-- Do not hardcode React/Next.js library names in `promptSnippet` strings without a frontend-aware mapping
-- Do not add questions to `FLOW_QUESTIONS` without also wiring them into the `next` map of their predecessor and updating `getNextQuestion()` if they need context-sensitive skips
+- Do not write `promptSnippet` as a plain string — must be `(answers: AnswerMap) => string`
+- Do not add a new option ID to `FLOW_QUESTIONS` without: (1) wiring its `next` map, (2) adding compat rules, (3) handling it in `getSetupCommands()`
+- Do not reference brand names as primary labels — use functional category names with `(e.g. ...)` in the `desc` field
+- `StackComparisonMatrix.tsx` was deleted — do not recreate it; the predefined stacks are shown in `LearnMore` instead
