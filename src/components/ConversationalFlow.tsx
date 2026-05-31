@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { LEARNING_ROADMAP } from '../data/toolKnowledge';
 import {
-  FLOW_QUESTIONS, FLOW_START, getNextQuestion,
+  FLOW_QUESTIONS, FLOW_START, getNextQuestion, getCompatSignal,
   AnswerMap, FlowQuestion, FlowOption
 } from '../data/conversationalFlow';
 
@@ -38,6 +38,7 @@ function OptionCard({
   multiSelected,
   isMulti,
   onClick,
+  answers,
 }: {
   key?: React.Key;
   opt: FlowOption;
@@ -45,9 +46,13 @@ function OptionCard({
   multiSelected: boolean;
   isMulti: boolean;
   onClick: () => void;
+  answers: AnswerMap;
 }) {
   const [expanded, setExpanded] = useState(false);
   const active = isMulti ? multiSelected : selected;
+  const compat = getCompatSignal(opt, answers);
+  const isIncompat = compat.signal === 'incompatible';
+  const isRecommended = compat.signal === 'recommended';
 
   return (
     <div
@@ -55,6 +60,10 @@ function OptionCard({
       className={`relative cursor-pointer rounded border-2 p-4 transition-all select-none group ${
         active
           ? 'border-blue-600 bg-blue-50/60 shadow-md ring-2 ring-blue-600/10'
+          : isIncompat
+          ? 'border-red-200 bg-red-50/40 hover:border-red-300 opacity-70'
+          : isRecommended
+          ? 'border-emerald-300 bg-emerald-50/40 hover:border-emerald-400 hover:shadow-sm'
           : 'border-[#D4D4D8] bg-white hover:border-gray-400 hover:shadow-sm'
       }`}
     >
@@ -65,10 +74,21 @@ function OptionCard({
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className={`font-extrabold text-base ${active ? 'text-blue-900' : 'text-zinc-900'}`}>
+            <span className={`font-extrabold text-base ${active ? 'text-blue-900' : isIncompat ? 'text-red-800' : 'text-zinc-900'}`}>
               {opt.label}
             </span>
-            {opt.badge && (
+            {/* compat badge — shown instead of static badge when a signal applies */}
+            {isRecommended && !active && (
+              <span className="text-xs bg-emerald-100 border border-emerald-400 text-emerald-800 px-1.5 py-0.5 rounded font-bold">
+                ✓ Best match
+              </span>
+            )}
+            {isIncompat && !active && (
+              <span className="text-xs bg-red-100 border border-red-300 text-red-700 px-1.5 py-0.5 rounded font-bold">
+                ✗ Not recommended
+              </span>
+            )}
+            {!isRecommended && !isIncompat && opt.badge && (
               <span className="text-xs bg-emerald-50 border border-emerald-300 text-emerald-700 px-1.5 py-0.5 rounded font-mono font-bold">
                 {opt.badge}
               </span>
@@ -78,6 +98,12 @@ function OptionCard({
             )}
           </div>
           <p className="text-sm text-gray-600 mt-1 leading-relaxed">{opt.desc}</p>
+          {/* compat reason line */}
+          {compat.reason && !active && (
+            <p className={`text-xs mt-1.5 font-medium leading-relaxed ${isIncompat ? 'text-red-600' : 'text-emerald-700'}`}>
+              {isIncompat ? '⚠ ' : '→ '}{compat.reason}
+            </p>
+          )}
         </div>
       </div>
 
@@ -121,10 +147,12 @@ function QuestionPanel({
   question,
   onAnswer,
   existingAnswer,
+  answers,
 }: {
   question: FlowQuestion;
   onAnswer: (answer: string | string[]) => void;
   existingAnswer?: string | string[];
+  answers: AnswerMap;
 }) {
   const [textVal, setTextVal] = useState<string>(
     typeof existingAnswer === 'string' ? existingAnswer : ''
@@ -212,6 +240,7 @@ function QuestionPanel({
             multiSelected={false}
             isMulti={false}
             onClick={() => handleSingleClick(opt.id)}
+            answers={answers}
           />
         ))}
       </div>
@@ -230,6 +259,7 @@ function QuestionPanel({
               multiSelected={multiSel.includes(opt.id)}
               isMulti={true}
               onClick={() => toggleMulti(opt.id)}
+              answers={answers}
             />
           ))}
         </div>
@@ -1174,6 +1204,7 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
             question={currentQuestion}
             onAnswer={handleAnswer}
             existingAnswer={answers[currentQuestionId]}
+            answers={answers}
           />
         </motion.div>
 
