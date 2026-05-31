@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useDebounce } from '../utils/useDebounce';
 import {
   Copy, Check, Sparkles, ChevronDown, ChevronRight,
   AlertTriangle, Lightbulb, Terminal, FileCode2, Palette,
@@ -424,7 +425,8 @@ export default function Vibecoder({ answers, handleCopyClipboard, onGoToBuilder 
     });
   };
 
-  const prompt = buildBasePrompt(answers, checked);
+  const debouncedChecked = useDebounce(checked, 150);
+  const prompt = buildBasePrompt(answers, debouncedChecked);
 
   const copy = () => {
     navigator.clipboard.writeText(prompt);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDebounce } from '../utils/useDebounce';
 import { BookOpen, Layers, X, ChevronRight, Lightbulb } from 'lucide-react';
 import { PREDEFINED_STACKS } from '../data';
 import { TOOL_KNOWLEDGE, LEARNING_ROADMAP, ToolInfo } from '../data/toolKnowledge';
@@ -210,7 +211,8 @@ const TOOL_GROUPS: { label: string; ids: string[] }[] = [
 
 function Glossary() {
   const [selected, setSelected] = useState<ToolInfo | null>(null);
-  const [search, setSearch] = useState('');
+  const [searchRaw, setSearchRaw] = useState('');
+  const search = useDebounce(searchRaw, 180);
 
   const filtered = search.trim()
     ? Object.values(TOOL_KNOWLEDGE).filter(t =>
@@ -226,8 +228,8 @@ function Glossary() {
       <div className="flex flex-col gap-4">
         <input
           type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
+          value={searchRaw}
+          onChange={e => setSearchRaw(e.target.value)}
           placeholder="Search tools… e.g. Nginx, Prisma, PM2"
           className="bg-white border border-[#D4D4D8] focus:border-blue-500 rounded px-3 py-2.5 text-sm focus:outline-none"
         />
@@ -249,7 +251,7 @@ function Glossary() {
               </button>
             ))}
             {filtered.length === 0 && (
-              <div className="col-span-3 text-center py-8 text-gray-400 text-sm">No tools found for "{search}"</div>
+              <div className="col-span-3 text-center py-8 text-gray-400 text-sm">No tools found for "{searchRaw}"</div>
             )}
           </div>
         ) : (

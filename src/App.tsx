@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import Header from './components/Header';
 import TabsNavigation, { TabType } from './components/TabsNavigation';
 import ConversationalFlow from './components/ConversationalFlow';
@@ -40,38 +41,39 @@ export default function App() {
       </div>
 
       <main className="flex-1 p-6 max-w-7xl w-full mx-auto" id="main-content-layout">
-
-        {/* TAB 1: STACK BUILDER */}
-        {activeTab === 'flow' && (
-          <ConversationalFlow
-            handleCopyClipboard={handleCopyClipboard}
-            onComplete={(answers) => setWizardAnswers(answers)}
-            onViewDiagram={() => switchTab('graphs')}
-          />
-        )}
-
-        {/* TAB 2: VISUAL MAP */}
-        {activeTab === 'graphs' && (
-          <VisualFlowchart
-            answers={wizardAnswers}
-            handleCopyClipboard={handleCopyClipboard}
-          />
-        )}
-
-        {/* TAB 3: VIBECODER */}
-        {activeTab === 'builder' && (
-          <Vibecoder
-            answers={wizardAnswers}
-            handleCopyClipboard={handleCopyClipboard}
-            onGoToBuilder={() => switchTab('flow')}
-          />
-        )}
-
-        {/* TAB 4: READ MORE */}
-        {activeTab === 'learn' && (
-          <LearnMore />
-        )}
-
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+          >
+            {activeTab === 'flow' && (
+              <ConversationalFlow
+                handleCopyClipboard={handleCopyClipboard}
+                onComplete={(answers) => setWizardAnswers(answers)}
+                onViewDiagram={() => switchTab('graphs')}
+              />
+            )}
+            {activeTab === 'graphs' && (
+              <VisualFlowchart
+                answers={wizardAnswers}
+                handleCopyClipboard={handleCopyClipboard}
+              />
+            )}
+            {activeTab === 'builder' && (
+              <Vibecoder
+                answers={wizardAnswers}
+                handleCopyClipboard={handleCopyClipboard}
+                onGoToBuilder={() => switchTab('flow')}
+              />
+            )}
+            {activeTab === 'learn' && (
+              <LearnMore />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <Footer />

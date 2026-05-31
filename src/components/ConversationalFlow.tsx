@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import mermaid from 'mermaid';
+import { motion } from 'motion/react';
+import { getMermaid } from '../utils/mermaid';
 import {
   ArrowRight, Check, ChevronRight, AlertTriangle, CheckCircle2,
   Copy, Terminal, Layers, FileCode2, RotateCcw, ChevronDown,
@@ -610,21 +611,6 @@ Be specific and production-aware. Call out any gotchas for the chosen stack (e.g
   );
 }
 
-// ─── MERMAID SETUP ───────────────────────────────────────────────────────────
-
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'default',
-  themeVariables: {
-    primaryColor: '#2563EB',
-    primaryTextColor: '#18181B',
-    primaryBorderColor: '#93C5FD',
-    lineColor: '#6B7280',
-    fontSize: '13px',
-  },
-  flowchart: { curve: 'basis', padding: 12 },
-});
-
 // Builds a live mermaid diagram from whatever answers exist so far
 function buildLiveDiagram(answers: AnswerMap): string {
   const label = (qId: string, aId: string) =>
@@ -746,7 +732,8 @@ function MiniMermaid({ definition }: { definition: string }) {
   useEffect(() => {
     if (!ref.current || !definition) return;
     while (ref.current.firstChild) ref.current.removeChild(ref.current.firstChild);
-    mermaid.render(`live-${Date.now()}`, definition)
+    getMermaid()
+      .then(m => m.render(`live-${Date.now()}`, definition))
       .then(({ svg }) => {
         if (!ref.current) return;
         const parser = new DOMParser();
@@ -1049,11 +1036,16 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
   const [answers, setAnswers] = useState<AnswerMap>(saved?.answers ?? {});
   const [done, setDone] = useState(saved?.done ?? false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const completedRef = useRef(false);
 
-  // Sync answers to parent and localStorage whenever state changes
+  // Sync to localStorage; fire onComplete exactly once when done transitions to true
   useEffect(() => {
     saveState({ history, answers, currentQuestionId, done });
-    if (done) onComplete?.(answers);
+    if (done && !completedRef.current) {
+      completedRef.current = true;
+      onComplete?.(answers);
+    }
+    if (!done) completedRef.current = false;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history, answers, currentQuestionId, done]);
 
@@ -1147,7 +1139,13 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
         </div>
 
         {/* current question */}
-        <div className="bg-white border-2 border-blue-600 rounded-lg p-6 shadow-md flex flex-col gap-5 animate-fade-in">
+        <motion.div
+          key={currentQuestionId}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="bg-white border-2 border-blue-600 rounded-lg p-6 shadow-md flex flex-col gap-5"
+        >
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-mono bg-blue-600 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider">
@@ -1175,7 +1173,7 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
             onAnswer={handleAnswer}
             existingAnswer={answers[currentQuestionId]}
           />
-        </div>
+        </motion.div>
 
         <div ref={bottomRef} />
       </div>

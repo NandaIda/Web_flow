@@ -4,4 +4,3 @@
 
 export * from './types';
 export * from './data/predefinedStacks';
-export * from './data/decisionSteps';

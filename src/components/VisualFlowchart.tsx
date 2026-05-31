@@ -1,28 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import mermaid from 'mermaid';
+import { getMermaid } from '../utils/mermaid';
 import {
   Copy, Check, X, BookOpen, Map, ChevronRight,
   ArrowRight, Lightbulb, Clock, Code2, Layers
 } from 'lucide-react';
 import { TOOL_KNOWLEDGE, LEARNING_ROADMAP, ToolInfo } from '../data/toolKnowledge';
 import { AnswerMap, FLOW_QUESTIONS } from '../data/conversationalFlow';
-
-// ─── MERMAID INIT ─────────────────────────────────────────────────────────────
-
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'default',
-  themeVariables: {
-    primaryColor: '#2563EB',
-    primaryTextColor: '#18181B',
-    primaryBorderColor: '#93C5FD',
-    lineColor: '#6B7280',
-    secondaryColor: '#F0F9FF',
-    background: '#FFFFFF',
-    fontSize: '14px',
-  },
-  flowchart: { curve: 'basis', padding: 20 },
-});
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
@@ -151,42 +134,50 @@ function ToolDrawer({ tool, onClose }: { tool: ToolInfo; onClose: () => void }) 
 function MermaidChart({ definition, id }: { definition: string; id: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!ref.current) return;
     setError('');
-    // Clear previous content safely — no innerHTML
+    setLoading(true);
     while (ref.current.firstChild) ref.current.removeChild(ref.current.firstChild);
 
-    mermaid.render(`mermaid-${id}-${Date.now()}`, definition)
+    getMermaid()
+      .then(m => m.render(`mermaid-${id}-${Date.now()}`, definition))
       .then(({ svg }) => {
         if (!ref.current) return;
-        // Parse SVG string into a real DOM node via DOMParser (safe — no script execution)
         const parser = new DOMParser();
         const doc = parser.parseFromString(svg, 'image/svg+xml');
         const svgNode = doc.documentElement;
-        // Remove any <script> elements that mermaid might embed
         svgNode.querySelectorAll('script').forEach(s => s.remove());
-        // Clear and append the sanitized SVG node
         while (ref.current.firstChild) ref.current.removeChild(ref.current.firstChild);
         ref.current.appendChild(document.adoptNode(svgNode));
+        setLoading(false);
       })
-      .catch(e => setError(String(e)));
+      .catch(e => { setError(String(e)); setLoading(false); });
   }, [definition, id]);
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded text-xs text-red-700 font-mono">
+      <div className="p-4 bg-red-50 border border-red-200 rounded text-sm text-red-700 font-mono">
         Diagram error: {error}
       </div>
     );
   }
 
   return (
-    <div
-      ref={ref}
-      className="w-full overflow-auto flex justify-center [&_svg]:max-w-full [&_svg]:h-auto"
-    />
+    <>
+      {loading && (
+        <div className="flex items-center justify-center py-10 text-sm text-gray-400">
+          <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse mr-2" />
+          Rendering diagram…
+        </div>
+      )}
+      <div
+        ref={ref}
+        className="w-full overflow-auto flex justify-center [&_svg]:max-w-full [&_svg]:h-auto"
+      />
+    </>
   );
 }
 
