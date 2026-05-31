@@ -80,7 +80,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         icon: '⚡',
         desc: 'Live updates, chat, collaborative editing, websockets',
         advantages: ['High user engagement', 'Modern UX feel'],
-        limits: ['Requires a persistent server — serverless platforms (Vercel, Netlify) do not support WebSockets', 'Use Railway, Fly.io, or a VPS instead']
+        limits: ['Requires a persistent server — serverless edge platforms do not support WebSockets', 'Use a container PaaS or self-managed VPS instead']
       },
       {
         id: 'dashboard',
@@ -133,33 +133,33 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
     options: [
       {
         id: 'vercel',
-        label: 'Vercel / Netlify',
+        label: 'Serverless Edge Hosting',
         icon: '▲',
-        desc: 'Serverless edge platforms — zero DevOps, instant Git deploys, global CDN',
+        desc: 'Git-push deploys on a global serverless edge network — zero server config, auto HTTPS, instant CDN (e.g. Vercel, Netlify)',
         badge: 'Best for frontend-heavy apps',
         advantages: ['Free tier for small projects', 'Auto HTTPS + CDN built-in', 'Zero server config'],
         limits: [
           'Serverless functions timeout at 10–30s depending on plan',
           'No persistent WebSocket connections — not suitable for realtime apps',
-          'No file system writes — use object storage (S3, Cloudflare R2) instead',
+          'No file system writes — use object storage instead',
           'Cold starts can add 200–500ms latency'
         ],
         compat: [
-          { signal: 'recommended', when: [{ key: 'app_type', values: ['saas', 'dashboard', 'landing', 'ecommerce'] }], reason: 'Vercel is ideal for this app type — fast deploys, zero DevOps' },
-          { signal: 'incompatible', when: [{ key: 'app_type', values: ['realtime'] }], reason: 'Vercel does not support persistent WebSockets — use Railway or a VPS instead' },
+          { signal: 'recommended', when: [{ key: 'app_type', values: ['saas', 'dashboard', 'landing', 'ecommerce'] }], reason: 'Serverless edge hosting is ideal for this app type — fast deploys, zero DevOps' },
+          { signal: 'incompatible', when: [{ key: 'app_type', values: ['realtime'] }], reason: 'Serverless platforms drop WebSocket connections — use a container PaaS or VPS instead' },
         ]
       },
       {
         id: 'railway',
-        label: 'Railway / Render / Fly.io',
+        label: 'Container PaaS',
         icon: '🚂',
-        desc: 'Managed container PaaS — runs your full Node/Python/Go server 24/7',
+        desc: 'Managed platform that runs your full server 24/7 in a container — no infra config (e.g. Railway, Render, Fly.io)',
         badge: 'Best for full-stack + APIs',
-        advantages: ['Supports WebSockets and long-running processes', 'No server config needed', 'Built-in DB provisioning on Railway'],
+        advantages: ['Supports WebSockets and long-running processes', 'No server config needed', 'Many include built-in DB provisioning'],
         limits: [
-          'Free tier sleeps after inactivity on Render (not Railway/Fly)',
+          'Some free tiers sleep after inactivity',
           '$5–$20/mo for always-on servers',
-          'Less global edge coverage than Vercel/Netlify'
+          'Less global edge coverage than serverless platforms'
         ],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['realtime', 'ai_app'] }], reason: 'Persistent server required for WebSockets and long-running AI tasks' },
@@ -167,50 +167,50 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'vps',
-        label: 'VPS (DigitalOcean / Hetzner / Linode)',
+        label: 'Self-Managed VPS',
         icon: '🖥️',
-        desc: 'Your own Linux server — full control, you manage everything',
-        advantages: ['Cheapest long-term ($4–$6/mo Hetzner)', 'Full control — no limits', 'WebSockets, cron, any port'],
+        desc: 'Your own Linux server — you install everything, full root access (e.g. DigitalOcean, Hetzner, Linode)',
+        advantages: ['Cheapest long-term (~$4–6/mo)', 'Full control — no platform limits', 'WebSockets, cron, any port'],
         limits: [
-          'You set up Nginx, SSL, firewall yourself',
+          'You set up the web server, SSL, and firewall yourself',
           'Need to manage OS updates and security patches',
           'No auto-scaling without extra work'
         ],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['realtime'] }], reason: 'Full server control — ideal for long-running WebSocket servers' },
-          { signal: 'incompatible', when: [{ key: 'app_type', values: ['landing'] }], reason: 'Overkill for a landing page — Vercel or Netlify is free and simpler' },
+          { signal: 'incompatible', when: [{ key: 'app_type', values: ['landing'] }], reason: 'Overkill for a landing page — serverless edge hosting is free and zero-config' },
         ]
       },
       {
         id: 'supabase_hosting',
-        label: 'Managed BaaS (Supabase / Firebase / Appwrite)',
+        label: 'Backend-as-a-Service (BaaS)',
         icon: '🟢',
-        desc: 'Backend-as-a-service provides DB + auth + storage — your frontend hosts on any CDN',
+        desc: 'Managed platform with DB + auth + storage built in — no backend server to run (e.g. Supabase, Firebase, Appwrite)',
         badge: 'Best for solo devs / rapid MVP',
-        advantages: ['No backend server to manage', 'DB + Auth + Storage in one dashboard', 'Free tiers available on all three'],
+        advantages: ['No backend server to manage', 'DB + Auth + Storage in one dashboard', 'Free tiers available'],
         limits: [
-          'Supabase free: 500MB DB, 50k MAU — Firebase/Appwrite have similar limits',
-          'Supabase edge functions use Deno (not Node.js); Firebase uses Node',
+          'Free tiers typically cap at ~500MB DB and 50k monthly active users',
+          'Serverless functions may use non-Node runtimes (e.g. Deno)',
           'Vendor lock-in — migrating away later is significant effort'
         ],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['saas', 'dashboard'] }], reason: 'BaaS gives you DB + Auth + Storage in one — ideal for rapid MVP' },
-          { signal: 'incompatible', when: [{ key: 'app_type', values: ['realtime'] }], reason: 'Supabase realtime has limits — persistent collaborative apps need a dedicated WS server' },
+          { signal: 'incompatible', when: [{ key: 'app_type', values: ['realtime'] }], reason: 'BaaS realtime features have connection limits — persistent collaborative apps need a dedicated WebSocket server' },
         ]
       },
       {
         id: 'aws',
-        label: 'AWS / GCP / Azure',
+        label: 'Enterprise Cloud',
         icon: '☁️',
-        desc: 'Enterprise cloud — EC2, Lambda, RDS, S3, IAM roles',
-        advantages: ['Infinite scale', 'Every service imaginable', 'Best for enterprise compliance'],
+        desc: 'Hyperscaler infrastructure with compute, storage, databases, and networking at any scale (e.g. AWS, GCP, Azure)',
+        advantages: ['Virtually unlimited scale', 'Every service imaginable', 'Best for enterprise compliance'],
         limits: [
-          'Steep learning curve — IAM alone takes weeks',
+          'Steep learning curve — IAM and networking alone take weeks',
           'Bills can spike unexpectedly without budget alerts',
           'Overkill for early-stage products'
         ],
         compat: [
-          { signal: 'incompatible', when: [{ key: 'app_type', values: ['landing', 'dashboard'] }], reason: 'AWS is overkill here — Vercel or Railway is faster to ship and cheaper' },
+          { signal: 'incompatible', when: [{ key: 'app_type', values: ['landing', 'dashboard'] }], reason: 'Enterprise cloud is overkill here — a serverless edge host or container PaaS ships faster and costs less' },
         ]
       }
     ],
@@ -233,35 +233,35 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
     options: [
       {
         id: 'supabase',
-        label: 'Supabase (PostgreSQL + extras)',
+        label: 'Managed Postgres + BaaS',
         icon: '🟢',
-        desc: 'Managed Postgres bundled with auth, realtime subscriptions, storage, and auto-generated APIs',
-        badge: 'Good if you want DB + Auth in one place',
-        advantages: ['Free tier: 500MB, 2 projects', 'Auth + DB + Storage in one dashboard', 'Row-level security built-in'],
-        limits: ['Free tier pauses after 1 week inactivity', 'Connection pooling via PgBouncer required for serverless', 'Vendor lock-in if you use many Supabase-specific features'],
+        desc: 'Hosted Postgres bundled with auth, realtime subscriptions, storage, and auto-generated APIs (e.g. Supabase)',
+        badge: 'DB + Auth in one place',
+        advantages: ['Auth + DB + Storage in one dashboard', 'Row-level security built-in', 'Free tier available'],
+        limits: ['Free tier pauses after ~1 week inactivity', 'Connection pooling required for serverless', 'Vendor lock-in if you use platform-specific features heavily'],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['saas', 'dashboard'] }], reason: 'Auth + DB in one dashboard — perfect for SaaS MVPs' },
-          { signal: 'recommended', when: [{ key: 'auth_strategy', values: ['email_password', 'email_plus_oauth', 'oauth_only'] }], reason: 'Supabase Auth covers your chosen login method natively' },
+          { signal: 'recommended', when: [{ key: 'auth_strategy', values: ['email_password', 'email_plus_oauth', 'oauth_only'] }], reason: 'Built-in auth covers your chosen login method natively' },
         ]
       },
       {
         id: 'planetscale',
-        label: 'PlanetScale (MySQL)',
+        label: 'Serverless MySQL',
         icon: '🪐',
-        desc: 'Serverless MySQL with branch-based schema migrations — no downtime deploys',
+        desc: 'Hosted MySQL with branch-based schema migrations and an HTTP driver — no connection pooling needed (e.g. PlanetScale)',
         advantages: ['HTTP driver works natively in serverless', 'Schema branching prevents migration accidents'],
-        limits: ['No foreign key constraints (by design)', 'MySQL dialect only', 'Free tier permanently discontinued — starts $39/mo'],
+        limits: ['No foreign key constraints (by design)', 'MySQL dialect only', 'Paid from the start — no permanent free tier'],
         compat: [
-          { signal: 'incompatible', when: [{ key: 'app_type', values: ['landing'] }], reason: 'PlanetScale starts at $39/mo — overkill for a landing page' },
+          { signal: 'incompatible', when: [{ key: 'app_type', values: ['landing'] }], reason: 'Serverless MySQL is a paid service — overkill for a landing page' },
         ]
       },
       {
         id: 'neon',
-        label: 'Neon (Serverless Postgres)',
+        label: 'Serverless Postgres',
         icon: '✨',
-        desc: 'Pure Postgres that auto-scales to zero when idle — pay only for what you use',
-        badge: 'Good if you want just the database',
-        advantages: ['True serverless Postgres — scales to zero cost when idle', 'Free tier: 0.5 GB', 'DB branching for dev/staging environments'],
+        desc: 'Pure Postgres that auto-scales to zero when idle — pay only for what you use (e.g. Neon)',
+        badge: 'Just the database',
+        advantages: ['Scales to zero cost when idle', 'Free tier included', 'DB branching for dev/staging environments'],
         limits: ['Scales to zero = cold start on first query (~500ms)', 'No built-in auth or storage — just the database'],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['saas', 'ecommerce', 'ai_app'] }], reason: 'Pure Postgres — best for complex relational data and AI/RAG workloads' },
@@ -269,11 +269,11 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'turso',
-        label: 'Turso (SQLite at the edge)',
+        label: 'Edge-Distributed SQLite',
         icon: '🦅',
-        desc: 'Distributed SQLite replicated to 35+ edge regions — ultra-low latency reads',
-        advantages: ['< 1ms reads at edge', 'Free tier: 9GB storage, 1B row reads/mo'],
-        limits: ['SQLite limitations — limited concurrent writes', 'Less mature ecosystem'],
+        desc: 'SQLite replicated to 35+ edge regions — ultra-low latency reads globally (e.g. Turso)',
+        advantages: ['Sub-millisecond reads at edge', 'Very generous free tier'],
+        limits: ['SQLite write limitations — limited concurrent writes', 'Less mature ecosystem than Postgres'],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['landing', 'dashboard'] }], reason: 'Ultra-fast reads, generous free tier — great for read-heavy apps' },
           { signal: 'incompatible', when: [{ key: 'app_type', values: ['ecommerce'] }], reason: 'Limited concurrent writes — not suitable for high-traffic order processing' },
@@ -281,10 +281,10 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'mongodb_atlas',
-        label: 'MongoDB Atlas',
+        label: 'Managed Document DB',
         icon: '🍃',
-        desc: 'Managed NoSQL document database — flexible JSON-like schema',
-        advantages: ['Free tier: 512MB', 'Great for flexible/unstructured data', 'Mongoose ORM very popular'],
+        desc: 'Hosted NoSQL document store with a flexible JSON-like schema (e.g. MongoDB Atlas)',
+        advantages: ['Free tier available', 'Great for flexible/unstructured data', 'Popular ORM ecosystem'],
         limits: ['No ACID transactions across collections', 'Schema flexibility can become a liability at scale'],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['ai_app'] }], reason: 'Flexible JSON schema suits unstructured AI/LLM output storage' },
@@ -298,16 +298,16 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
   db_general: {
     id: 'db_general',
     question: 'Which database will you use?',
-    hint: 'On VPS or Railway, you can run the DB yourself or use a managed service.',
+    hint: 'On a container PaaS or VPS, you can run the DB yourself or point to a managed service.',
     type: 'single',
     options: [
       {
         id: 'postgres_self',
         label: 'PostgreSQL (self-hosted)',
         icon: '🐘',
-        desc: 'Run your own Postgres in Docker on your VPS or Railway container',
+        desc: 'Run your own Postgres in Docker on your server or container platform',
         advantages: ['Free', 'Full control, no vendor limits', 'Best ACID compliance'],
-        limits: ['You manage backups and upgrades', 'Need connection pooling (PgBouncer) for high concurrency'],
+        limits: ['You manage backups and upgrades', 'Need connection pooling for high concurrency'],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['saas', 'ecommerce', 'realtime'] }], reason: 'Full control + ACID — ideal for data-critical or high-traffic apps' },
           { signal: 'recommended', when: [{ key: 'deploy_target', values: ['vps', 'railway'] }], reason: 'Self-hosted Postgres pairs naturally with a persistent server' },
@@ -315,31 +315,31 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'supabase',
-        label: 'Supabase (managed Postgres)',
+        label: 'Managed Postgres + BaaS',
         icon: '🟢',
-        desc: 'Managed Postgres with auth, storage, and realtime built-in — even on VPS deploys',
+        desc: 'Hosted Postgres with auth, storage, and realtime built-in — usable from any hosting provider (e.g. Supabase)',
         advantages: ['Free tier generous', 'Auth + DB in one place'],
-        limits: ['Free tier pauses after 1 week idle', 'Extra vendor dependency'],
+        limits: ['Free tier pauses after ~1 week idle', 'Extra vendor dependency'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'app_type', values: ['saas', 'dashboard'] }], reason: 'Auth + DB in one dashboard — great for SaaS even on Railway/VPS' },
+          { signal: 'recommended', when: [{ key: 'app_type', values: ['saas', 'dashboard'] }], reason: 'Auth + DB in one dashboard — great for SaaS even on a container PaaS or VPS' },
         ]
       },
       {
         id: 'mysql_self',
-        label: 'MySQL / MariaDB (self-hosted)',
+        label: 'MySQL (self-hosted)',
         icon: '🐬',
-        desc: 'Classic MySQL — still widely used for web applications',
-        advantages: ['Very simple to set up on any VPS', 'Massive hosting compatibility'],
-        limits: ['Less powerful JSON support than Postgres', 'Fewer advanced features'],
+        desc: 'Classic MySQL / MariaDB — still widely used for web applications',
+        advantages: ['Very simple to set up on any server', 'Massive hosting compatibility'],
+        limits: ['Less powerful JSON support than Postgres', 'No native vector search for AI workloads'],
         compat: [
           { signal: 'incompatible', when: [{ key: 'app_type', values: ['ai_app'] }], reason: 'Poor JSON and vector support — use Postgres with pgvector for AI apps' },
         ]
       },
       {
         id: 'mongodb_atlas',
-        label: 'MongoDB Atlas (managed)',
+        label: 'Managed Document DB',
         icon: '🍃',
-        desc: 'NoSQL document store — works well for fast iteration on flexible schemas',
+        desc: 'Hosted NoSQL document store — works well for fast iteration on flexible schemas (e.g. MongoDB Atlas)',
         advantages: ['No schema migrations needed', 'Free tier available'],
         limits: ['No joins — data modeling requires care', 'Less suitable for financial/relational data'],
         compat: [
@@ -353,7 +353,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         icon: '📁',
         desc: 'Embedded DB in a single file — zero setup, great for prototypes',
         advantages: ['Zero config, zero cost', 'Perfect for solo dev MVP'],
-        limits: ['No concurrent writes', 'Not suitable for multi-server deployments', 'Data lost if server resets without volume mount'],
+        limits: ['No concurrent writes', 'Not suitable for multi-server deployments', 'Data lost on redeploy without a persistent volume'],
         compat: [
           { signal: 'incompatible', when: [{ key: 'app_type', values: ['saas', 'ecommerce', 'realtime'] }], reason: 'No concurrent writes — not suitable for multi-user production apps' },
           { signal: 'incompatible', when: [{ key: 'deploy_target', values: ['railway', 'vps'] }], reason: 'Data lost on redeploy without a persistent volume — use Postgres instead' },
@@ -550,11 +550,11 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'clerk',
-        label: 'Clerk',
+        label: 'Hosted Auth Service',
         icon: '🧑‍💼',
-        desc: 'Drop-in auth UI components + backend — fastest to integrate',
-        advantages: ['Pre-built login/signup UI', 'MFA, SSO out of the box', 'Free tier: 10k monthly active users'],
-        limits: ['$25/mo when you exceed free tier', 'Less flexible for deeply custom auth flows'],
+        desc: 'Fully managed auth with pre-built UI components, MFA, and SSO — drop-in, no auth code to write (e.g. Clerk)',
+        advantages: ['Pre-built login/signup UI', 'MFA, SSO out of the box', 'Generous free tier'],
+        limits: ['Monthly cost once you scale past the free tier', 'Less flexible for deeply custom auth flows'],
         compat: [
           { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['nextjs', 'react_vite'] }], reason: 'Clerk\'s React SDK and pre-built components are React-first' },
           { signal: 'incompatible', when: [{ key: 'frontend_choice', values: ['sveltekit', 'vue_nuxt'] }], reason: 'Clerk has no official Svelte or Vue SDK — integration is manual and unsupported' },
@@ -574,14 +574,14 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'supabase_auth_lib',
-        label: 'Supabase Auth (SDK)',
+        label: 'BaaS Auth SDK',
         icon: '🟢',
-        desc: 'Use @supabase/auth-helpers to manage sessions even outside of Supabase hosting',
-        advantages: ['Works with any hosting', 'Free tier included'],
-        limits: ['Still couples your auth to Supabase'],
+        desc: 'Use your BaaS platform\'s auth SDK to manage sessions — works even outside their hosting (e.g. Supabase Auth SDK)',
+        advantages: ['Works with any hosting provider', 'Free tier included with the BaaS plan'],
+        limits: ['Couples your auth layer to your BaaS provider'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'db_for_vercel', values: ['supabase'] }, { key: 'db_general', values: ['supabase'] }], reason: 'Already using Supabase DB — using Supabase Auth keeps everything in one dashboard' },
-          { signal: 'incompatible', when: [{ key: 'db_for_vercel', values: ['neon', 'planetscale', 'turso', 'mongodb_atlas'] }], reason: 'Supabase Auth couples you to Supabase — consider BetterAuth or Auth.js to stay DB-agnostic' },
+          { signal: 'recommended', when: [{ key: 'db_for_vercel', values: ['supabase'] }, { key: 'db_general', values: ['supabase'] }], reason: 'Already using a managed Postgres + BaaS — using the same platform\'s auth keeps everything in one dashboard' },
+          { signal: 'incompatible', when: [{ key: 'db_for_vercel', values: ['neon', 'planetscale', 'turso', 'mongodb_atlas'] }], reason: 'BaaS Auth SDK ties you to one provider even though your DB is elsewhere — use BetterAuth or Auth.js to stay DB-agnostic' },
         ]
       },
       {
@@ -613,10 +613,10 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         icon: '▲',
         desc: 'Full-stack React framework with SSR, SSG, API routes, and edge functions',
         badge: 'Most popular for SaaS / full-stack',
-        advantages: ['App Router = server components = faster pages', 'API routes = no separate backend for simple apps', 'SEO-friendly by default', 'Deploys on Vercel, Railway, VPS, or any Node host'],
+        advantages: ['App Router = server components = faster pages', 'API routes = no separate backend for simple apps', 'SEO-friendly by default', 'Deploys on serverless edge, container PaaS, VPS, or any Node host'],
         limits: ['Server components add mental overhead', 'Large bundle if not careful with client components'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'deploy_target', values: ['vercel'] }], reason: 'Next.js is made by Vercel — first-class deployment support, zero config' },
+          { signal: 'recommended', when: [{ key: 'deploy_target', values: ['vercel'] }], reason: 'Next.js is built by the team behind this serverless edge platform — first-class deployment support, zero config' },
           { signal: 'recommended', when: [{ key: 'app_type', values: ['saas', 'ecommerce'] }], reason: 'SSR + API routes in one — ideal for SEO-critical and data-heavy apps' },
         ]
       },
@@ -641,7 +641,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         advantages: ['Smallest bundle sizes', 'No virtual DOM = better performance', 'Excellent developer ergonomics'],
         limits: ['Smaller ecosystem than React', 'Fewer UI component libraries available'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'deploy_target', values: ['vercel', 'railway'] }], reason: 'SvelteKit deploys natively to Vercel and Railway with adapter-auto' },
+          { signal: 'recommended', when: [{ key: 'deploy_target', values: ['vercel', 'railway'] }], reason: 'SvelteKit deploys natively to serverless edge hosts and container PaaS platforms with adapter-auto' },
           { signal: 'recommended', when: [{ key: 'app_type', values: ['landing', 'dashboard'] }], reason: 'Tiny bundle size and fast rendering — great for content and internal tools' },
           { signal: 'incompatible', when: [{ key: 'auth_library', values: ['clerk'] }], reason: 'Clerk has no official Svelte SDK — use Auth.js (SvelteKit adapter) or BetterAuth' },
           { signal: 'incompatible', when: [{ key: 'styling_choice', values: ['shadcn'] }], reason: 'shadcn/ui is React-only — use shadcn-svelte or bits-ui for Svelte' },
@@ -655,7 +655,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         advantages: ['Clean reactive syntax', 'Great official ecosystem (Pinia, Vue Router)'],
         limits: ['Less popular in US job market than React', 'Fewer enterprise UI libraries'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'deploy_target', values: ['vercel', 'railway'] }], reason: 'Nuxt deploys cleanly to Vercel and Railway' },
+          { signal: 'recommended', when: [{ key: 'deploy_target', values: ['vercel', 'railway'] }], reason: 'Nuxt deploys cleanly to serverless edge hosts and container PaaS platforms' },
           { signal: 'incompatible', when: [{ key: 'auth_library', values: ['clerk', 'nextauth'] }], reason: 'Clerk and Auth.js have poor Vue support — use nuxt-auth or BetterAuth' },
           { signal: 'incompatible', when: [{ key: 'styling_choice', values: ['shadcn'] }], reason: 'shadcn/ui is React-only — use shadcn-vue or Nuxt UI instead' },
         ]
@@ -702,8 +702,8 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         label: 'SvelteKit Server Routes (+server.ts)',
         icon: '🔶',
         desc: 'Built-in server endpoints in SvelteKit — no separate backend needed',
-        advantages: ['Collocated with your Svelte pages', 'Shared TypeScript types', 'Runs on Vercel, Railway, or Node'],
-        limits: ['Serverless by default on Vercel — same timeout limits apply', 'Not suitable for WebSockets without a Node adapter'],
+        advantages: ['Collocated with your Svelte pages', 'Shared TypeScript types', 'Runs on serverless edge, container PaaS, or plain Node'],
+        limits: ['Serverless by default on edge platforms — same function timeout limits apply', 'Not suitable for WebSockets without a Node adapter'],
         compat: [
           { signal: 'recommended', when: [{ key: 'frontend_choice', values: ['sveltekit'] }], reason: 'Native to SvelteKit — no extra server, fully integrated' },
           { signal: 'incompatible', when: [{ key: 'frontend_choice', values: ['nextjs', 'react_vite', 'vue_nuxt', 'vanilla'] }], reason: 'SvelteKit server routes only work inside a SvelteKit app' },
@@ -749,15 +749,15 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'supabase_edge',
-        label: 'Supabase Edge Functions only',
+        label: 'BaaS Edge Functions',
         icon: '🟢',
-        desc: 'Deno-based serverless functions for backend logic — no custom server',
-        advantages: ['Integrated with Supabase DB and Auth', 'Deploy in seconds', 'Free tier included'],
-        limits: ['Deno runtime — not Node.js', '150ms cold start', 'Limited to Deno-compatible packages'],
+        desc: 'Serverless functions co-located with your BaaS platform — no separate backend to deploy (e.g. Supabase Edge Functions)',
+        advantages: ['Integrated with your BaaS DB and Auth', 'Deploy in seconds', 'Included in BaaS free tier'],
+        limits: ['Non-Node runtime (e.g. Deno) — not all npm packages work', '~150ms cold start', 'Limited to runtime-compatible packages'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'db_for_vercel', values: ['supabase'] }], reason: 'Already on Supabase — edge functions keep everything in one platform' },
-          { signal: 'incompatible', when: [{ key: 'db_for_vercel', values: ['neon', 'planetscale', 'turso', 'mongodb_atlas'] }], reason: 'Supabase Edge Functions work best with Supabase DB — coupling here may limit your database choice' },
-          { signal: 'incompatible', when: [{ key: 'app_type', values: ['realtime', 'ai_app'] }], reason: 'Edge functions have 150ms cold starts and no persistent state — not suitable for streaming or long AI tasks' },
+          { signal: 'recommended', when: [{ key: 'db_for_vercel', values: ['supabase'] }], reason: 'Already using a managed Postgres + BaaS — co-located edge functions keep everything in one platform' },
+          { signal: 'incompatible', when: [{ key: 'db_for_vercel', values: ['neon', 'planetscale', 'turso', 'mongodb_atlas'] }], reason: 'BaaS edge functions work best alongside their own DB — mixing providers adds complexity' },
+          { signal: 'incompatible', when: [{ key: 'app_type', values: ['realtime', 'ai_app'] }], reason: 'Edge functions have cold starts and no persistent state — not suitable for streaming or long-running AI tasks' },
         ]
       }
     ],
@@ -869,7 +869,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         advantages: ['Quick to add via SDK', 'Streaming responses available'],
         limits: ['API costs per token', 'Streaming needs server-sent events or WebSockets — check your platform supports it before committing'],
         compat: [
-          { signal: 'incompatible', when: [{ key: 'deploy_target', values: ['vercel'] }, { key: 'backend_choice', values: ['nextjs_api'] }], reason: 'Vercel functions timeout at 10–30s — streaming LLM responses will get cut off on long outputs' },
+          { signal: 'incompatible', when: [{ key: 'deploy_target', values: ['vercel'] }, { key: 'backend_choice', values: ['nextjs_api'] }], reason: 'Serverless edge functions timeout at 10–30s — streaming LLM responses will get cut off on long outputs' },
           { signal: 'recommended', when: [{ key: 'deploy_target', values: ['railway', 'vps'] }], reason: 'Persistent servers handle streaming responses without timeout restrictions' },
         ]
       },
@@ -893,7 +893,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         advantages: ['Automates complex workflows'],
         limits: ['Needs persistent connections — serverless hostile', 'Hard to debug', 'High token costs'],
         compat: [
-          { signal: 'incompatible', when: [{ key: 'deploy_target', values: ['vercel'] }], reason: 'Vercel functions timeout at 10–30s — agent tasks take minutes and will be killed' },
+          { signal: 'incompatible', when: [{ key: 'deploy_target', values: ['vercel'] }], reason: 'Serverless edge functions timeout at 10–30s — agent tasks take minutes and will be killed' },
           { signal: 'recommended', when: [{ key: 'backend_choice', values: ['fastapi_py'] }], reason: 'Python with LangGraph or CrewAI is the standard for production agent pipelines' },
         ]
       }
@@ -919,24 +919,24 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'stripe',
-        label: 'Stripe (subscriptions / one-time)',
+        label: 'Payment Gateway',
         icon: '💳',
-        desc: 'Industry standard — handles cards, invoices, subscriptions, webhooks',
+        desc: 'Direct card processing — you handle checkout, they handle the transaction and fraud (e.g. Stripe, Braintree)',
         badge: 'Recommended',
-        advantages: ['Best documentation in the industry', 'Webhooks make subscription state easy', 'Free until you earn money'],
-        limits: ['2.9% + 30¢ per transaction', 'Webhook endpoint must be always-on and fast — test with Stripe CLI locally before deploying'],
+        advantages: ['Excellent developer documentation', 'Webhooks make subscription state easy', 'Free until you earn money'],
+        limits: ['~2.9% + fixed fee per transaction', 'Webhook endpoint must be always-on — test locally with a CLI tunnel before deploying'],
         compat: [
-          { signal: 'recommended', when: [{ key: 'app_type', values: ['saas'] }], reason: 'Stripe Billing handles SaaS subscriptions, trials, and invoices natively' },
-          { signal: 'recommended', when: [{ key: 'app_type', values: ['ecommerce'] }], reason: 'Stripe is the industry standard for one-time and recurring payments' },
+          { signal: 'recommended', when: [{ key: 'app_type', values: ['saas'] }], reason: 'Payment gateways handle SaaS subscriptions, trials, and invoices natively' },
+          { signal: 'recommended', when: [{ key: 'app_type', values: ['ecommerce'] }], reason: 'A payment gateway is the standard choice for one-time and recurring payments' },
         ]
       },
       {
         id: 'lemon_squeezy',
-        label: 'Lemon Squeezy',
+        label: 'Merchant of Record',
         icon: '🍋',
-        desc: 'Merchant of record — they handle VAT, taxes, and compliance for you',
-        advantages: ['No tax headache for global products', 'Simple setup'],
-        limits: ['Higher fees than Stripe', 'Less flexible for complex billing'],
+        desc: 'The provider becomes the legal seller — they collect VAT, handle tax compliance, and remit globally (e.g. Lemon Squeezy, Paddle)',
+        advantages: ['No global VAT/tax headache — they handle it all', 'Simple setup, faster to launch internationally'],
+        limits: ['Higher fees than a direct payment gateway', 'Less flexible for complex billing scenarios'],
         compat: [
           { signal: 'recommended', when: [{ key: 'app_type', values: ['saas'] }], reason: 'MoR model removes global VAT/tax complexity — ideal for indie SaaS with international users' },
         ]
