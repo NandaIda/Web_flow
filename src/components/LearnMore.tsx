@@ -18,6 +18,7 @@ function categoryColor(cat: ToolInfo['category']): string {
     case 'monitoring': return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-800';
     case 'styling':    return 'bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300 border-pink-200 dark:border-pink-800';
     case 'build':      return 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800';
+    case 'payments':   return 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
     default:           return 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700';
   }
 }
@@ -202,11 +203,12 @@ const TOOL_GROUPS: { label: string; ids: string[] }[] = [
   { label: 'Build Tools', ids: ['vite'] },
   { label: 'Styling', ids: ['tailwind', 'shadcn'] },
   { label: 'Backend', ids: ['express', 'fastapi', 'django', 'prisma'] },
-  { label: 'Database', ids: ['postgres', 'mysql', 'sqlite', 'mongodb'] },
+  { label: 'Database', ids: ['postgres', 'mysql', 'sqlite', 'mongodb', 'planetscale', 'neon', 'turso'] },
   { label: 'Authentication', ids: ['nextauth', 'clerk', 'supabase_auth'] },
   { label: 'Deployment', ids: ['vercel', 'railway', 'vps', 'supabase'] },
   { label: 'Process & Proxy', ids: ['pm2', 'systemd', 'gunicorn', 'uvicorn', 'nginx', 'caddy'] },
   { label: 'Monitoring', ids: ['sentry'] },
+  { label: 'Payments', ids: ['stripe', 'lemon_squeezy'] },
 ];
 
 function Glossary() {

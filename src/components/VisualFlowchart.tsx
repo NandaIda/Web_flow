@@ -21,6 +21,7 @@ function categoryColor(cat: ToolInfo['category']): string {
     case 'monitoring':return 'bg-gray-100 text-gray-800 border-gray-200';
     case 'styling':   return 'bg-pink-100 text-pink-800 border-pink-200';
     case 'build':     return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+    case 'payments':  return 'bg-emerald-100 text-emerald-800 border-emerald-200';
     default:          return 'bg-zinc-100 text-zinc-800 border-zinc-200';
   }
 }

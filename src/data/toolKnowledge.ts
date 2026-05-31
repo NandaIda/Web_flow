@@ -6,7 +6,7 @@
 export interface ToolInfo {
   id: string;
   name: string;
-  category: 'frontend' | 'backend' | 'database' | 'auth' | 'deployment' | 'process' | 'proxy' | 'monitoring' | 'styling' | 'build';
+  category: 'frontend' | 'backend' | 'database' | 'auth' | 'deployment' | 'process' | 'proxy' | 'monitoring' | 'styling' | 'build' | 'payments';
   emoji: string;
   tagline: string;
   what: string;         // plain-English "what is this?"
@@ -226,6 +226,48 @@ export const TOOL_KNOWLEDGE: Record<string, ToolInfo> = {
     difficulty: 'Beginner',
   },
 
+  planetscale: {
+    id: 'planetscale',
+    name: 'Serverless MySQL',
+    category: 'database',
+    emoji: '🪐',
+    tagline: 'Branch-based MySQL database for serverless apps (e.g. PlanetScale)',
+    what: 'PlanetScale is a hosted MySQL database built on top of Vitess (the same technology that powers YouTube\'s database infrastructure). It offers branch-based schema migrations — you create a "branch" of your database schema, make changes, then merge it into production, similar to how Git works.',
+    why: 'Traditional MySQL schema migrations are risky — one wrong ALTER TABLE can lock your database for hours. PlanetScale\'s branching workflow lets you test changes safely before merging. It also provides an HTTP driver that works natively in serverless environments without connection pooling.',
+    beginner: 'PlanetScale is great if you prefer MySQL and want safe schema migrations. The HTTP driver makes it easy to use from serverless platforms. Note: foreign key constraints are not supported (by design), and there is no permanent free tier.',
+    alternatives: ['Neon', 'Supabase', 'AWS RDS', 'DigitalOcean Managed DB'],
+    usedWith: ['MySQL', 'Prisma', 'Next.js', 'Vercel'],
+    difficulty: 'Intermediate',
+  },
+
+  neon: {
+    id: 'neon',
+    name: 'Serverless Postgres',
+    category: 'database',
+    emoji: '✨',
+    tagline: 'Auto-scaling Postgres that pauses when idle (e.g. Neon)',
+    what: 'Neon is a managed PostgreSQL database that auto-scales to zero when not in use. It separates compute from storage — when your database is idle, the compute layer shuts down and you pay nothing. On the next query, it wakes up in about 500ms. This makes it ideal for serverless and infrequent-use apps.',
+    why: 'Traditional managed Postgres charges you even when your database is not being used. Neon\'s scale-to-zero model means you only pay for active compute time plus storage. It also supports database branching for development, staging, and testing environments.',
+    beginner: 'Neon is the best "just the database" option for Postgres on a budget. The free tier is generous. Be aware of the ~500ms cold start after idle periods — not ideal for latency-sensitive apps without keeping a minimum compute active.',
+    alternatives: ['Supabase', 'PlanetScale', 'AWS RDS', 'Railway Postgres'],
+    usedWith: ['PostgreSQL', 'Prisma', 'Drizzle', 'Next.js', 'Vercel'],
+    difficulty: 'Beginner',
+  },
+
+  turso: {
+    id: 'turso',
+    name: 'Edge SQLite',
+    category: 'database',
+    emoji: '🦅',
+    tagline: 'SQLite replicated globally at the edge (e.g. Turso)',
+    what: 'Turso is a distributed SQLite database that replicates your data to multiple edge locations worldwide. Each edge replica serves reads with sub-millisecond latency because the data is physically close to your users. Writes go through a primary instance. It is built on libSQL, an open-source fork of SQLite.',
+    why: 'Traditional centralized databases have high read latency for users far from the server. Turso puts your data at the edge — users in Tokyo read from a Tokyo replica, users in London read from a London replica. The free tier is very generous, making it ideal for read-heavy apps and MVPs.',
+    beginner: 'Turso is perfect for read-heavy apps like landing pages, dashboards, and content sites that need fast global reads. The free tier includes 9GB storage and 500M row reads per month. Not ideal for write-heavy apps due to SQLite\'s single-writer limitation.',
+    alternatives: ['Neon', 'PlanetScale', 'SQLite (self-hosted)', 'Cloudflare D1'],
+    usedWith: ['SQLite', 'Drizzle', 'Next.js', 'Express'],
+    difficulty: 'Beginner',
+  },
+
   // ── AUTH ──────────────────────────────────────────────────────────────────
 
   nextauth: {
@@ -244,10 +286,10 @@ export const TOOL_KNOWLEDGE: Record<string, ToolInfo> = {
 
   clerk: {
     id: 'clerk',
-    name: 'Clerk',
+    name: 'Managed Auth Service',
     category: 'auth',
     emoji: '🧑‍💼',
-    tagline: 'Drop-in auth with pre-built UI',
+    tagline: 'Drop-in auth with pre-built UI components (e.g. Clerk)',
     what: 'Clerk is a managed authentication service that provides pre-built sign-in/sign-up UI components, user management dashboard, MFA, SSO, and organization features. You embed their components into your app.',
     why: 'Auth.js requires configuring adapters, callbacks, and DB schemas. Clerk works out of the box — wrap your app in `<ClerkProvider>` and add `<SignIn />`. The hosted user dashboard handles all user management.',
     beginner: 'Clerk is the fastest way to add professional auth to a Next.js app. Free tier supports 10,000 monthly active users. After that, $25/month. Good choice for MVPs and growing startups.',
@@ -258,10 +300,10 @@ export const TOOL_KNOWLEDGE: Record<string, ToolInfo> = {
 
   supabase_auth: {
     id: 'supabase_auth',
-    name: 'Supabase Auth',
+    name: 'Platform Auth SDK',
     category: 'auth',
     emoji: '🟢',
-    tagline: 'Auth built into your Postgres database',
+    tagline: 'Authentication built into your BaaS platform (e.g. Supabase Auth)',
     what: 'Supabase Auth is an authentication service included with every Supabase project. It stores users in your PostgreSQL database and supports email/password, magic links, Google, GitHub, Discord, and phone OTP.',
     why: 'When you use Supabase as your database, using Supabase Auth means users are stored right next to your app data. You get Row-Level Security (RLS) — database policies that restrict what data each user can see directly at the database level.',
     beginner: 'If you are already using Supabase for your database, using Supabase Auth is the natural choice. The `@supabase/auth-helpers-nextjs` package integrates it cleanly with Next.js.',
@@ -274,10 +316,10 @@ export const TOOL_KNOWLEDGE: Record<string, ToolInfo> = {
 
   vercel: {
     id: 'vercel',
-    name: 'Vercel',
+    name: 'Serverless Edge Platform',
     category: 'deployment',
     emoji: '▲',
-    tagline: 'Serverless cloud platform for frontend and fullstack',
+    tagline: 'Push-to-deploy cloud platform for frontend and fullstack (e.g. Vercel)',
     what: 'Vercel is a cloud platform that deploys your app directly from a GitHub repository. Push code → Vercel builds and deploys automatically. It runs your server code as serverless functions (short-lived, request-scoped).',
     why: 'Traditional hosting requires configuring a server, setting up SSL, managing Nginx, etc. Vercel handles all of that automatically. It is the fastest way to go from code to live URL.',
     beginner: 'The free tier is excellent for personal projects and small SaaS. Critical limit: serverless functions timeout at 10 seconds on the free plan. This means no WebSockets, no long AI streaming without upgrading.',
@@ -288,10 +330,10 @@ export const TOOL_KNOWLEDGE: Record<string, ToolInfo> = {
 
   railway: {
     id: 'railway',
-    name: 'Railway / Render',
+    name: 'Container PaaS',
     category: 'deployment',
     emoji: '🚂',
-    tagline: 'Managed container PaaS',
+    tagline: 'Managed container platform — always-on servers (e.g. Railway, Render)',
     what: 'Railway and Render are "Platform as a Service" (PaaS) providers. You push your code and they run it inside a persistent container (not serverless). Your server stays running 24/7, with no cold starts.',
     why: 'Unlike Vercel\'s serverless functions, Railway/Render containers support WebSockets, long-running processes, background jobs, and persistent in-memory state. They are better for full-stack apps with a separate backend.',
     beginner: 'Railway is easier to set up than a VPS and cheaper than AWS. Free tier on Render sleeps after 30 minutes of inactivity — upgrade to $7/month for always-on. Use for backend APIs and full-stack apps.',
@@ -316,10 +358,10 @@ export const TOOL_KNOWLEDGE: Record<string, ToolInfo> = {
 
   supabase: {
     id: 'supabase',
-    name: 'Supabase',
+    name: 'Backend-as-a-Service (BaaS)',
     category: 'deployment',
     emoji: '🟢',
-    tagline: 'Open-source Firebase alternative',
+    tagline: 'Open-source Firebase alternative — managed Postgres + auth + storage (e.g. Supabase)',
     what: 'Supabase provides a managed PostgreSQL database, authentication, file storage, realtime subscriptions, and edge functions — all in one platform with a generous free tier. You connect to it from your frontend using the Supabase JS client.',
     why: 'Building all these features yourself (database + auth + storage + realtime) would take weeks. Supabase provides them instantly. It is especially popular for MVPs and indie hackers who want to ship fast.',
     beginner: 'Use Supabase when you want a full backend without writing backend code. The free tier includes 500MB database, 1GB storage, and 50k monthly active users. After 1 week of inactivity, free projects pause.',
@@ -420,15 +462,45 @@ export const TOOL_KNOWLEDGE: Record<string, ToolInfo> = {
 
   sentry: {
     id: 'sentry',
-    name: 'Sentry',
+    name: 'Error Monitoring Service',
     category: 'monitoring',
     emoji: '🐛',
-    tagline: 'Error monitoring and performance tracking',
+    tagline: 'Real-time error tracking and performance monitoring (e.g. Sentry)',
     what: 'Sentry captures JavaScript errors, exceptions, and performance issues from your live app and sends you alerts. When a user encounters a crash, Sentry records the full stack trace, the user\'s browser, the URL, and recent actions.',
     why: 'Without monitoring, you only find bugs when users complain. Sentry shows you errors the moment they happen, with full context, so you can fix them before they become widespread.',
     beginner: 'Add Sentry to any app with `npm install @sentry/react` (or `@sentry/node`). Free tier: 5,000 errors/month. Takes 10 minutes to set up and immediately makes your app more professional.',
     alternatives: ['Bugsnag', 'Rollbar', 'Datadog', 'LogRocket'],
     usedWith: ['React', 'Next.js', 'Express', 'FastAPI', 'Any production app'],
+    difficulty: 'Beginner',
+  },
+
+  // ── PAYMENTS ──────────────────────────────────────────────────────────────
+
+  stripe: {
+    id: 'stripe',
+    name: 'Payment Gateway',
+    category: 'payments',
+    emoji: '💳',
+    tagline: 'Online payment processing for internet businesses (e.g. Stripe)',
+    what: 'Stripe is a payment processing platform that lets you accept credit cards, digital wallets (Apple Pay, Google Pay), and local payment methods worldwide. You embed Stripe Checkout or Stripe Elements in your frontend, and Stripe handles the transaction, fraud detection, and settlement. It provides webhooks for subscription lifecycle events.',
+    why: 'Accepting payments directly is complex — you need PCI compliance, handle card data security, manage subscriptions, and deal with failed charges. Stripe abstracts all of this into a clean API. You send a payment intent, Stripe shows a secure checkout, and money appears in your account.',
+    beginner: 'Stripe is the default choice for online payments. Free to start — you only pay ~2.9% + $0.30 per successful transaction. Use Stripe Checkout (hosted page) for the quickest setup, or Stripe Elements for a custom checkout. The Stripe Dashboard shows all your payouts, refunds, and customer data.',
+    alternatives: ['Lemon Squeezy', 'Paddle', 'Braintree', 'Square'],
+    usedWith: ['React', 'Next.js', 'Node.js', 'Express', 'FastAPI'],
+    difficulty: 'Beginner',
+  },
+
+  lemon_squeezy: {
+    id: 'lemon_squeezy',
+    name: 'Merchant of Record',
+    category: 'payments',
+    emoji: '🍋',
+    tagline: 'Global tax-compliant payment processing (e.g. Lemon Squeezy, Paddle)',
+    what: 'Lemon Squeezy is a "Merchant of Record" (MoR) payment platform. Unlike Stripe where you are the legal seller, Lemon Squeezy becomes the merchant of record — they handle VAT/GST collection and remittance globally, invoice customers on their behalf, and manage tax compliance across 190+ countries.',
+    why: 'Selling digital products globally means dealing with VAT in the EU, GST in Australia, sales tax in the US — each with different thresholds and filing requirements. A MoR platform handles all of this. You receive a single payout after they subtract fees and taxes. This is critical for indie developers and small teams who cannot afford a tax accountant.',
+    beginner: 'Use Lemon Squeezy (or Paddle) if you are selling digital products to international customers and do not want to deal with global tax compliance. Fees are higher (~5% + $0.50) than Stripe, but the tax handling alone is worth it. Perfect for indie SaaS and digital downloads.',
+    alternatives: ['Stripe', 'Paddle', 'Gumroad'],
+    usedWith: ['React', 'Next.js', 'Any web framework'],
     difficulty: 'Beginner',
   },
 
