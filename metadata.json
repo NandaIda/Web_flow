@@ -1,0 +1,6 @@
+{
+  "name": "Full-Stack Decision Map & Stack Builder",
+  "description": "An interactive decision map and stack planner that helps developers choose their frontend, backend, database, and deployment setup based on project needs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
