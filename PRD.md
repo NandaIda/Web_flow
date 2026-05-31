@@ -89,3 +89,24 @@ The interface features the optimized high-contrast High Density theme:
 *   **Color Palette**: Clean off-white background canvas (`#F4F4F5`) framed by severe deep charcoal gray headers (`#18181B`) and sharp blue system accents (`#2563EB`).
 *   **Typography**: Clean sans-serif sans fonts for user guidance paired with compact monochrome technical fonts (`font-mono`) for specs details, system codes, and metadata rails.
 *   **Layout Spacing**: Narrow vertical padding with high density grids allows development leads to view all 13 step selections and overall ratings on a single screen without vertical scroll-fatigue.
+
+The main rule of thumb for web body text is **16 pixels (px)**, which equals **12 points** or **1 rem**. [boia](https://www.boia.org/blog/does-font-size-matter-for-web-accessibility)
+
+### Key font size guidelines:
+
+| Aspect | Recommendation |
+|--------|----------------|
+| **Body text** | 16 px (12 pt / 1 rem) minimum  [boia](https://www.boia.org/blog/does-font-size-matter-for-web-accessibility) |
+| **Absolute minimum** | 12 px (9 pt) — smaller may be illegible  [accessibility.psu](https://accessibility.psu.edu/fontsizehtml/) |
+| **Mobile websites** | 16 px minimum for readability  [specialt](https://www.specialt.net/documentation/standards/typography-38) |
+| **Older adults/vision issues** | At least 19 px (14 pt / 1.67 rem)  [boia](https://www.boia.org/blog/does-font-size-matter-for-web-accessibility) |
+| **Subheadings** | Significantly larger than body text  [boia](https://www.boia.org/blog/does-font-size-matter-for-web-accessibility) |
+
+### Important best practices:
+
+- **Use relative units** (`rem` or `em`) instead of absolute units (`px` or `pt`) so text respects user browser settings [w3](https://www.w3.org/QA/Tips/font-size)
+- **Don't go below 1 em** for body text (except fine print like copyrights) [w3](https://www.w3.org/QA/Tips/font-size.html)
+- **Ensure text can zoom to 200%** without losing functionality (WCAG requirement) [accessibility.psu](https://accessibility.psu.edu/fontsizehtml/)
+- **Line height** should be at least 1.5 (150%) for readability [specialt](https://www.specialt.net/documentation/standards/typography-38)
+
+The 16 px standard works because it's readable for most users without forcing them to zoom in, while still being efficient for screen real estate. [boia](https://www.boia.org/blog/does-font-size-matter-for-web-accessibility)

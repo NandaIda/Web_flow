@@ -20,7 +20,7 @@ export default function TabsNavigation({ activeTab, setActiveTab }: TabsNavigati
             : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-[#D4D4D8]'
         }`}
       >
-        <Layers className="h-5 w-5" /> 13-Step Matrix Flow
+        <Layers className="h-5 w-5" /> Stack Builder
       </button>
       <button
         onClick={() => setActiveTab('table')}

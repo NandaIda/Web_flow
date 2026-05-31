@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Header from './components/Header';
 import TabsNavigation from './components/TabsNavigation';
-import StepMatrixFlow from './components/StepMatrixFlow';
+import ConversationalFlow from './components/ConversationalFlow';
 import StackComparisonMatrix from './components/StackComparisonMatrix';
 import VisualTopologyNodes from './components/VisualTopologyNodes';
 import AutoStackQuestionnaire from './components/AutoStackQuestionnaire';
@@ -126,15 +126,9 @@ export default function App() {
       {/* PRIMARY GRID LAYOUT CONTAINER */}
       <main className="flex-1 p-6 max-w-7xl w-full mx-auto" id="main-content-layout">
 
-        {/* TAB 1: 13-STEP MATRIX FLOW */}
+        {/* TAB 1: CONVERSATIONAL STACK BUILDER */}
         {activeTab === 'flow' && (
-          <StepMatrixFlow
-            stepChoices={stepChoices}
-            currentStepperIndex={currentStepperIndex}
-            setCurrentStepperIndex={setCurrentStepperIndex}
-            calculatedStats={calculatedStats}
-            setActiveTab={setActiveTab}
-            handleStepChoiceSelect={handleStepChoiceSelect}
+          <ConversationalFlow
             handleCopyClipboard={handleCopyClipboard}
           />
         )}
