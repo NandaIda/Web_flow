@@ -494,7 +494,9 @@ Be specific and production-aware. Call out any gotchas for the chosen stack (e.g
               </button>
             )}
             <button
-              onClick={onRestart}
+              onClick={() => {
+                if (window.confirm('Start over? All your answers will be cleared.')) onRestart();
+              }}
               className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-200 transition-all underline underline-offset-2"
             >
               <RotateCcw className="h-3 w-3" /> Start over
@@ -503,11 +505,80 @@ Be specific and production-aware. Call out any gotchas for the chosen stack (e.g
         </div>
       </div>
 
-      {/* EDITABLE ANSWERS — primary review UI */}
+      {/* PRIMARY CTA — AI Prompt */}
+      <div className="bg-[#0F0F11] border border-zinc-800 rounded p-5 flex flex-col gap-3">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center gap-1.5">
+            <FileCode2 className="h-4 w-4 text-blue-400" /> AI Prompt — paste into Cursor / Claude / ChatGPT
+          </h3>
+          <button
+            onClick={() => copy('prompt')}
+            className="flex items-center gap-1.5 text-sm bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded transition-all"
+          >
+            {copied === 'prompt' ? (
+              <><Check className="h-4 w-4" /> Copied!</>
+            ) : (
+              <><Copy className="h-4 w-4" /> Copy Prompt</>
+            )}
+          </button>
+        </div>
+        <textarea
+          readOnly
+          className="w-full h-52 bg-[#18181B] text-emerald-300 p-4 text-sm font-mono leading-relaxed rounded border border-zinc-800 focus:outline-none resize-none select-all"
+          value={getAIPrompt()}
+        />
+        <p className="text-sm text-gray-500 italic leading-relaxed">
+          💡 Copy this and paste into Cursor Composer, Claude, or ChatGPT to scaffold your project. Then use the <strong className="text-gray-400">Vibecoder</strong> tab to add feature improvements.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* terminal setup commands */}
+        <div className="bg-[#0F0F11] border border-zinc-800 rounded p-5 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center gap-1.5">
+              <Terminal className="h-4 w-4 text-emerald-400" /> Setup Commands
+            </h3>
+            <button
+              onClick={() => copy('commands')}
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-2.5 py-1 rounded transition-all"
+            >
+              {copied === 'commands' ? (
+                <><Check className="h-3.5 w-3.5 text-emerald-400" /> Copied!</>
+              ) : (
+                <><Copy className="h-3.5 w-3.5" /> Copy</>
+              )}
+            </button>
+          </div>
+          <pre className="text-sm font-mono text-emerald-300 leading-relaxed overflow-x-auto whitespace-pre-wrap break-words max-h-64 overflow-y-auto scrollbar-thin">
+            {getSetupCommands()}
+          </pre>
+        </div>
+
+        {/* blueprint summary */}
+        <div className="bg-white border border-[#D4D4D8] rounded p-5 flex flex-col gap-4">
+          <h3 className="text-xs font-black uppercase tracking-widest text-gray-600 flex items-center gap-1.5">
+            <Layers className="h-4 w-4 text-blue-600" /> Stack Summary
+          </h3>
+          <div className="divide-y divide-gray-100">
+            {stackRows.map((row, i) => (
+              <div key={i} className="flex items-center justify-between py-2 text-sm">
+                <span className="text-gray-500 flex items-center gap-1.5">
+                  <span>{row.icon}</span> {row.label}
+                </span>
+                <span className="font-bold text-zinc-900 text-right max-w-[55%]">{row.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* EDITABLE ANSWERS */}
       <div className="bg-white border border-[#D4D4D8] rounded overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 bg-zinc-50 border-b border-[#D4D4D8]">
           <span className="text-xs font-black uppercase tracking-widest text-gray-600 flex items-center gap-1.5">
-            ✎ Your choices — click any row to change it
+            ✎ Your choices — click any row to edit
           </span>
           <span className="text-xs text-gray-400 italic hidden sm:block">Downstream answers are preserved as defaults</span>
         </div>
@@ -531,81 +602,12 @@ Be specific and production-aware. Call out any gotchas for the chosen stack (e.g
                   <span className="text-sm font-bold text-zinc-800 group-hover:text-blue-700 text-right max-w-[200px] truncate">
                     {ansDisplay}
                   </span>
-                  <span className="text-xs text-gray-300 group-hover:text-blue-500 font-bold">✎</span>
+                  <span className="text-xs text-blue-400 font-bold opacity-50 group-hover:opacity-100 transition-opacity">✎</span>
                 </div>
               </button>
             );
           })}
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* blueprint summary */}
-        <div className="bg-white border border-[#D4D4D8] rounded p-5 flex flex-col gap-4">
-          <h3 className="text-xs font-black uppercase tracking-widest text-gray-600 flex items-center gap-1.5">
-            <Layers className="h-4 w-4 text-blue-600" /> Stack Summary
-          </h3>
-          <div className="divide-y divide-gray-100">
-            {stackRows.map((row, i) => (
-              <div key={i} className="flex items-center justify-between py-2 text-sm">
-                <span className="text-gray-500 flex items-center gap-1.5">
-                  <span>{row.icon}</span> {row.label}
-                </span>
-                <span className="font-bold text-zinc-900 text-right max-w-[55%]">{row.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* terminal setup commands */}
-        <div className="bg-[#0F0F11] border border-zinc-800 rounded p-5 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center gap-1.5">
-              <Terminal className="h-4 w-4 text-emerald-400" /> Setup Commands
-            </h3>
-            <button
-              onClick={() => copy('commands')}
-              className="flex items-center gap-1 text-xs text-gray-400 hover:text-white border border-zinc-700 hover:border-zinc-500 px-2.5 py-1 rounded transition-all"
-            >
-              {copied === 'commands' ? (
-                <><Check className="h-3.5 w-3.5 text-emerald-400" /> Copied!</>
-              ) : (
-                <><Copy className="h-3.5 w-3.5" /> Copy</>
-              )}
-            </button>
-          </div>
-          <pre className="text-sm font-mono text-emerald-300 leading-relaxed overflow-x-auto whitespace-pre-wrap break-words max-h-64 overflow-y-auto scrollbar-thin">
-            {getSetupCommands()}
-          </pre>
-        </div>
-      </div>
-
-      {/* AI prompt */}
-      <div className="bg-white border border-[#D4D4D8] rounded p-5 flex flex-col gap-3">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <h3 className="text-xs font-black uppercase tracking-widest text-gray-600 flex items-center gap-1.5">
-            <FileCode2 className="h-4 w-4 text-blue-600" /> AI Prompt — paste into Cursor / ChatGPT / Claude
-          </h3>
-          <button
-            onClick={() => copy('prompt')}
-            className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded transition-all"
-          >
-            {copied === 'prompt' ? (
-              <><Check className="h-3.5 w-3.5" /> Copied!</>
-            ) : (
-              <><Copy className="h-3.5 w-3.5" /> Copy Prompt</>
-            )}
-          </button>
-        </div>
-        <textarea
-          readOnly
-          className="w-full h-48 bg-[#F4F4F5] text-gray-800 p-4 text-sm font-mono leading-relaxed rounded border border-[#D4D4D8] focus:outline-none resize-none select-all"
-          value={getAIPrompt()}
-        />
-        <p className="text-sm text-gray-500 italic leading-relaxed">
-          💡 Tip: Select all text in the box above, copy, then paste directly into Cursor Composer or any AI chat.
-        </p>
       </div>
     </div>
   );
@@ -1132,7 +1134,7 @@ export default function ConversationalFlow({ handleCopyClipboard, onComplete, on
           <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
             <div
               className="h-full bg-blue-600 transition-all duration-500"
-              style={{ width: `${Math.min(progress, 95)}%` }}
+              style={{ width: `${progress}%` }}
             />
           </div>
           <HistoryBreadcrumb history={history} onGoBack={handleGoBack} />

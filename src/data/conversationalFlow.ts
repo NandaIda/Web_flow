@@ -70,7 +70,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         icon: '⚡',
         desc: 'Live updates, chat, collaborative editing, websockets',
         advantages: ['High user engagement', 'Modern UX feel'],
-        limits: ['WebSockets need persistent server — Vercel free tier will break this']
+        limits: ['Requires a persistent server — serverless platforms (Vercel, Netlify) do not support WebSockets', 'Use Railway, Fly.io, or a VPS instead']
       },
       {
         id: 'dashboard',
@@ -86,7 +86,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         icon: '🛍️',
         desc: 'Product listings, cart, payments, order management',
         advantages: ['Clear monetization path'],
-        limits: ['Stripe/payment gateway integration required', 'PCI compliance if storing card data']
+        limits: ['Payment gateway (Stripe, Paddle, etc.) required', 'Use a payment provider like Stripe to avoid storing card data — they handle PCI compliance for you']
       },
       {
         id: 'ai_app',
@@ -94,7 +94,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         icon: '🤖',
         desc: 'LLM chat, RAG search, embedding pipelines, agents',
         advantages: ['Cutting-edge product category'],
-        limits: ['Long AI responses need streaming — Vercel 10s limit is a problem', 'Vector DB adds cost']
+        limits: ['Long AI responses need streaming — serverless function timeouts (10–30s) can cut them off', 'Vector DB (pgvector, Pinecone, Weaviate) adds cost and complexity']
       },
       {
         id: 'landing',
@@ -118,34 +118,34 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
   deploy_target: {
     id: 'deploy_target',
     question: 'Where do you want to deploy your app?',
-    hint: 'Your hosting choice changes which database, auth, and process manager options make sense.',
+    hint: 'Your hosting choice shapes which database, auth, and backend options make sense. Serverless = less ops work; VPS = full control.',
     type: 'single',
     options: [
       {
         id: 'vercel',
-        label: 'Vercel',
+        label: 'Vercel / Netlify',
         icon: '▲',
-        desc: 'Serverless edge platform, zero DevOps, instant deploys from Git',
-        badge: 'Best for landing/SaaS frontend',
-        advantages: ['Free tier for small projects', 'Auto HTTPS, CDN built-in', 'Zero server config'],
+        desc: 'Serverless edge platforms — zero DevOps, instant Git deploys, global CDN',
+        badge: 'Best for frontend-heavy apps',
+        advantages: ['Free tier for small projects', 'Auto HTTPS + CDN built-in', 'Zero server config'],
         limits: [
-          'Serverless functions timeout at 10s (free) / 60s (pro)',
-          'No persistent WebSocket connections',
-          'No file system writes — use object storage instead',
+          'Serverless functions timeout at 10–30s depending on plan',
+          'No persistent WebSocket connections — not suitable for realtime apps',
+          'No file system writes — use object storage (S3, Cloudflare R2) instead',
           'Cold starts can add 200–500ms latency'
         ]
       },
       {
         id: 'railway',
-        label: 'Railway / Render',
+        label: 'Railway / Render / Fly.io',
         icon: '🚂',
         desc: 'Managed container PaaS — runs your full Node/Python/Go server 24/7',
-        badge: 'Best for APIs + full-stack',
-        advantages: ['Supports WebSockets', 'No server config needed', 'Built-in DB provisioning'],
+        badge: 'Best for full-stack + APIs',
+        advantages: ['Supports WebSockets and long-running processes', 'No server config needed', 'Built-in DB provisioning on Railway'],
         limits: [
-          'Free tier sleeps after 30 min inactivity (Render)',
-          '$5–$20/mo for always-on',
-          'Less global edge coverage vs Vercel'
+          'Free tier sleeps after inactivity on Render (not Railway/Fly)',
+          '$5–$20/mo for always-on servers',
+          'Less global edge coverage than Vercel/Netlify'
         ]
       },
       {
@@ -162,15 +162,15 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
       },
       {
         id: 'supabase_hosting',
-        label: 'Supabase + Vercel (managed backend)',
+        label: 'Managed BaaS (Supabase / Firebase / Appwrite)',
         icon: '🟢',
-        desc: 'Supabase provides DB + auth + storage + edge functions; Vercel hosts the frontend',
-        badge: 'Best for solo devs / vibecoders',
-        advantages: ['No backend server to manage', 'DB + Auth + Storage in one dashboard', 'Free tier generous'],
+        desc: 'Backend-as-a-service provides DB + auth + storage — your frontend hosts on any CDN',
+        badge: 'Best for solo devs / rapid MVP',
+        advantages: ['No backend server to manage', 'DB + Auth + Storage in one dashboard', 'Free tiers available on all three'],
         limits: [
-          'Supabase free: 500MB DB, 1GB storage, 50k monthly active users',
-          'Edge functions are Deno-based (not Node.js)',
-          'Vendor lock-in if you rely heavily on Supabase APIs'
+          'Supabase free: 500MB DB, 50k MAU — Firebase/Appwrite have similar limits',
+          'Supabase edge functions use Deno (not Node.js); Firebase uses Node',
+          'Vendor lock-in — migrating away later is significant effort'
         ]
       },
       {
@@ -199,18 +199,18 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
 
   db_for_vercel: {
     id: 'db_for_vercel',
-    question: 'Which database will you use with Vercel?',
-    hint: 'Vercel is serverless, so your DB needs to support HTTP connections or connection pooling.',
+    question: 'Which database will you use? (serverless-compatible options)',
+    hint: 'Serverless platforms need databases that support HTTP connections or connection pooling — standard TCP connections can exhaust limits.',
     type: 'single',
     options: [
       {
         id: 'supabase',
-        label: 'Supabase (PostgreSQL)',
+        label: 'Supabase (PostgreSQL + extras)',
         icon: '🟢',
-        desc: 'Managed Postgres with built-in auth, realtime subscriptions, and file storage',
-        badge: 'Most popular with Vercel',
-        advantages: ['Free tier: 500MB, 2 projects', 'REST + GraphQL auto-generated', 'Row-level security built-in'],
-        limits: ['Free tier pauses after 1 week inactivity', 'Connection pooling via PgBouncer required for serverless']
+        desc: 'Managed Postgres bundled with auth, realtime subscriptions, storage, and auto-generated APIs',
+        badge: 'Good if you want DB + Auth in one place',
+        advantages: ['Free tier: 500MB, 2 projects', 'Auth + DB + Storage in one dashboard', 'Row-level security built-in'],
+        limits: ['Free tier pauses after 1 week inactivity', 'Connection pooling via PgBouncer required for serverless', 'Vendor lock-in if you use many Supabase-specific features']
       },
       {
         id: 'planetscale',
@@ -218,15 +218,16 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         icon: '🪐',
         desc: 'Serverless MySQL with branch-based schema migrations — no downtime deploys',
         advantages: ['HTTP driver works natively in serverless', 'Schema branching prevents migration accidents'],
-        limits: ['No foreign key constraints (by design)', 'MySQL dialect only', 'Free tier removed in 2024 — starts $39/mo']
+        limits: ['No foreign key constraints (by design)', 'MySQL dialect only', 'Free tier permanently discontinued — starts $39/mo']
       },
       {
         id: 'neon',
         label: 'Neon (Serverless Postgres)',
         icon: '✨',
-        desc: 'Postgres that scales to zero when idle — perfect for serverless/Vercel',
-        advantages: ['True serverless Postgres — no cold start DB fee', 'Free tier: 0.5 GB', 'Branching like PlanetScale'],
-        limits: ['Scales to zero = slight cold start', 'Newer service, smaller community']
+        desc: 'Pure Postgres that auto-scales to zero when idle — pay only for what you use',
+        badge: 'Good if you want just the database',
+        advantages: ['True serverless Postgres — scales to zero cost when idle', 'Free tier: 0.5 GB', 'DB branching for dev/staging environments'],
+        limits: ['Scales to zero = cold start on first query (~500ms)', 'No built-in auth or storage — just the database']
       },
       {
         id: 'turso',
@@ -302,29 +303,29 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
 
   auth_supabase: {
     id: 'auth_supabase',
-    question: 'You are using Supabase — will you also use Supabase Auth?',
-    hint: 'Supabase Auth supports Google, GitHub, magic link, phone OTP, and email+password out of the box.',
+    question: 'Your BaaS platform includes built-in auth — will you use it?',
+    hint: 'Supabase Auth, Firebase Auth, and Appwrite Auth all support social login, magic links, and email+password out of the box.',
     type: 'single',
     options: [
       {
         id: 'supabase_auth_yes',
-        label: 'Yes — use Supabase Auth',
+        label: 'Yes — use the built-in auth',
         icon: '🟢',
-        desc: 'Handles sessions, JWT tokens, OAuth providers, and email confirmations automatically',
-        advantages: ['Zero custom auth code', 'Integrated with Row-Level Security', 'All providers in one dashboard'],
-        limits: ['Locked to Supabase ecosystem', 'Custom auth flows need edge functions']
+        desc: 'Your BaaS (Supabase / Firebase / Appwrite) handles sessions, JWT tokens, OAuth providers, and email confirmations',
+        advantages: ['Zero custom auth code', 'Integrated with your database permissions', 'All providers in one dashboard'],
+        limits: ['Locked to your BaaS ecosystem', 'Custom auth flows may need serverless functions']
       },
       {
         id: 'supabase_auth_no',
-        label: 'No — I\'ll build my own auth',
+        label: 'No — I\'ll use a separate auth library',
         icon: '🔧',
-        desc: 'Use a library like NextAuth.js / Auth.js or build JWT sessions manually',
-        advantages: ['Full control over auth logic', 'Can migrate away from Supabase later'],
-        limits: ['More code to write and maintain', 'Easy to introduce security bugs']
+        desc: 'Use Auth.js, Clerk, BetterAuth, or custom JWT — connects to your BaaS database independently',
+        advantages: ['Full control over auth logic', 'Easier to migrate away from BaaS later'],
+        limits: ['More code to write and maintain', 'Easy to introduce security bugs if done manually']
       }
     ],
     next: {
-      supabase_auth_yes: 'auth_providers',
+      supabase_auth_yes: 'email_verification',
       supabase_auth_no: 'auth_strategy'
     }
   },
@@ -448,7 +449,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
   auth_library: {
     id: 'auth_library',
     question: 'Which auth library or service will you use?',
-    hint: 'Unless you are using Supabase Auth, you need to pick an implementation.',
+    hint: 'Pick the library that handles session management, tokens, and OAuth callbacks for your app.',
     type: 'single',
     options: [
       {
@@ -469,12 +470,12 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         limits: ['$25/mo when you exceed free tier', 'Less flexible for deeply custom auth flows']
       },
       {
-        id: 'lucia',
-        label: 'Lucia Auth',
+        id: 'better_auth',
+        label: 'BetterAuth',
         icon: '🏮',
-        desc: 'Lightweight session-based auth library — you control the full flow',
-        advantages: ['Full control — no magic', 'DB-agnostic', 'Framework-agnostic'],
-        limits: ['More code to write', 'Smaller community than NextAuth']
+        desc: 'Modern TypeScript auth library — session-based with plugin system for OAuth, 2FA, and more',
+        advantages: ['Full control — no magic', 'Framework-agnostic', 'Actively maintained (Lucia successor)'],
+        limits: ['More code to write than Clerk', 'Smaller community than Auth.js']
       },
       {
         id: 'supabase_auth_lib',
@@ -501,7 +502,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
   frontend_choice: {
     id: 'frontend_choice',
     question: 'What is your frontend framework?',
-    hint: 'Your hosting choice may influence this — e.g. Vercel is built for Next.js.',
+    hint: 'Your hosting choice may influence this — serverless platforms pair well with Next.js/SvelteKit, while a VPS lets you run any framework.',
     type: 'single',
     options: [
       {
@@ -509,8 +510,8 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         label: 'Next.js (React)',
         icon: '▲',
         desc: 'Full-stack React framework with SSR, SSG, API routes, and edge functions',
-        badge: 'Best for Vercel / SaaS',
-        advantages: ['App Router = server components = faster pages', 'API routes = no separate backend for simple apps', 'SEO-friendly by default'],
+        badge: 'Most popular for SaaS / full-stack',
+        advantages: ['App Router = server components = faster pages', 'API routes = no separate backend for simple apps', 'SEO-friendly by default', 'Deploys on Vercel, Railway, VPS, or any Node host'],
         limits: ['Server components add mental overhead', 'Large bundle if not careful with client components']
       },
       {
@@ -563,7 +564,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         icon: '▲',
         desc: 'Use Next.js Route Handlers / API routes for your backend logic',
         advantages: ['No separate server to deploy', 'Shared TypeScript types', 'Deploy frontend + backend as one'],
-        limits: ['Serverless — 10s timeout on Vercel free', 'No persistent in-memory state', 'Not suitable for WebSockets']
+        limits: ['Serverless — function timeout varies by platform (10–30s)', 'No persistent in-memory state between requests', 'Not suitable for WebSockets or long-running tasks']
       },
       {
         id: 'express_node',
@@ -621,9 +622,9 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         label: 'Tailwind + shadcn/ui',
         icon: '🧩',
         desc: 'Tailwind with copy-paste accessible component library (Radix UI based)',
-        badge: 'Recommended for SaaS',
+        badge: 'Recommended for React SaaS',
         advantages: ['Beautiful accessible components out of the box', 'You own the code — no package updates breaking your UI'],
-        limits: ['React only', 'Large initial component setup']
+        limits: ['React only — not available for Vue or Svelte', 'Large initial component setup']
       },
       {
         id: 'css_modules',
@@ -664,7 +665,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         icon: '💬',
         desc: 'Integrate OpenAI / Anthropic / Gemini for chat or text generation',
         advantages: ['Quick to add via SDK', 'Streaming responses available'],
-        limits: ['API costs per token', 'Need streaming support in backend — problematic on Vercel free']
+        limits: ['API costs per token', 'Streaming needs server-sent events or WebSockets — check your platform supports it before committing']
       },
       {
         id: 'rag_vector',
@@ -706,7 +707,7 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
         desc: 'Industry standard — handles cards, invoices, subscriptions, webhooks',
         badge: 'Recommended',
         advantages: ['Best documentation in the industry', 'Webhooks make subscription state easy', 'Free until you earn money'],
-        limits: ['2.9% + 30¢ per transaction', 'Webhook handling needs a persistent endpoint (not serverless cold start friendly)']
+        limits: ['2.9% + 30¢ per transaction', 'Webhook endpoint must be always-on and fast — test with Stripe CLI locally before deploying']
       },
       {
         id: 'lemon_squeezy',
@@ -720,12 +721,6 @@ export const FLOW_QUESTIONS: Record<string, FlowQuestion> = {
     next: { '*': 'done' }
   },
 
-  done: {
-    id: 'done',
-    question: '',
-    type: 'text',
-    next: {}
-  }
 };
 
 // ─── QUESTION ORDER / GRAPH ───────────────────────────────────────────────────
@@ -745,14 +740,22 @@ export function getNextQuestion(currentId: string, answer: string | string[], an
 
   // Context-sensitive skips
   if (nextId === 'backend_choice') {
-    const frontend = answers['frontend_choice'];
-    // If deploy is supabase_hosting, skip backend choice and go straight to styling
     if (answers['deploy_target'] === 'supabase_hosting') return 'styling_choice';
+  }
+
+  // After email_verification, skip auth_library if Supabase Auth is handling auth
+  if (nextId === 'auth_library') {
+    if (answers['auth_supabase'] === 'supabase_auth_yes') return 'frontend_choice';
+  }
+
+  // Skip AI integration and payments for app types that don't need them
+  if (nextId === 'ai_integration') {
+    const appType = answers['app_type'];
+    if (appType === 'landing' || appType === 'dashboard') return 'payments';
   }
 
   if (nextId === 'payments') {
     const appType = answers['app_type'];
-    // Landing pages don't need payment questions
     if (appType === 'landing' || appType === 'dashboard') return null;
   }
 

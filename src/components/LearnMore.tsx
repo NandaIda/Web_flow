@@ -335,8 +335,17 @@ function FullRoadmap() {
 
 type LearnSection = 'stacks' | 'glossary' | 'roadmap';
 
+const LS_LEARN_KEY = 'webflow_learn_section';
+
 export default function LearnMore() {
-  const [section, setSection] = useState<LearnSection>('stacks');
+  const [section, setSection] = useState<LearnSection>(() => {
+    try { return (localStorage.getItem(LS_LEARN_KEY) as LearnSection) || 'stacks'; } catch { return 'stacks'; }
+  });
+
+  const switchSection = (s: LearnSection) => {
+    setSection(s);
+    try { localStorage.setItem(LS_LEARN_KEY, s); } catch {}
+  };
 
   const sections: { id: LearnSection; label: string; desc: string }[] = [
     { id: 'stacks',  label: '🏗️ Stack Comparison', desc: 'Compare predefined stacks side by side' },
@@ -360,7 +369,7 @@ export default function LearnMore() {
         {sections.map(s => (
           <button
             key={s.id}
-            onClick={() => setSection(s.id)}
+            onClick={() => switchSection(s.id)}
             className={`text-left p-4 rounded border transition-all ${
               section === s.id
                 ? 'border-blue-600 bg-blue-50 shadow-sm'
